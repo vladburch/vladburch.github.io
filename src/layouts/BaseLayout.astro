@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ParticlesBg from '../components/ParticlesBg.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -22,6 +23,7 @@ const siteTitle = `${title} | Firewall Flamingos`;
     <title>{siteTitle}</title>
   </head>
   <body>
+    <ParticlesBg />
     <Header />
     <main>
       <slot />
