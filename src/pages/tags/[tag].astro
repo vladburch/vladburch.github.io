@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const blogPosts = await getCollection('blog');
+  const kbArticles = await getCollection('kb');
+
+  const tagMap = new Map<string, { blog: typeof blogPosts; kb: typeof kbArticles }>();
+
+  for (const post of blogPosts) {
+    for (const tag of post.data.tags) {
+      if (!tagMap.has(tag)) tagMap.set(tag, { blog: [], kb: [] });
+      tagMap.get(tag)!.blog.push(post);
+    }
+  }
+
+  for (const article of kbArticles) {
+    for (const tag of article.data.tags) {
+      if (!tagMap.has(tag)) tagMap.set(tag, { blog: [], kb: [] });
+      tagMap.get(tag)!.kb.push(article);
+    }
+  }
+
+  return Array.from(tagMap.entries()).map(([tag, data]) => ({
+    params: { tag },
+    props: { tag, blogPosts: data.blog, kbArticles: data.kb },
+  }));
+}
+
+const { tag, blogPosts, kbArticles } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const blogItems = blogPosts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .map(post => ({
+    href: `${base}blog/${post.id}/`,
+    title: post.data.title,
+    meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  }));
+
+const kbItems = kbArticles
+  .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf())
+  .map(article => ({
+    href: `${base}kb/${article.id}/`,
+    title: article.data.title,
+    meta: 'KB',
+  }));
+---
+
+<BaseLayout title={`Tag: ${tag}`} description={`Articles tagged with "${tag}".`}>
+  <section class="tag-page">
+    <h1>Tag: <span class="tag-name">{tag}</span></h1>
+    <p class="count">{blogItems.length + kbItems.length} articles</p>
+
+    {blogItems.length > 0 && (
+      <div class="group">
+        <h2>Blog</h2>
+        <ArticleList items={blogItems} />
+      </div>
+    )}
+
+    {kbItems.length > 0 && (
+      <div class="group">
+        <h2>Knowledge Base</h2>
+        <ArticleList items={kbItems} />
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .tag-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  .tag-page h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .tag-name {
+    color: var(--accent);
+  }
+
+  .count {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .group {
+    margin-bottom: 24px;
+  }
+
+  .group h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+</style>
