@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL;
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const items = posts.map(post => ({
+  href: `${base}blog/${post.id}/`,
+  title: post.data.title,
+  meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+}));
+---
+
+<BaseLayout title="Blog" description="Security research articles and deep dives.">
+  <section class="listing">
+    <h1>Blog</h1>
+    <p class="listing-desc">Research articles, deep dives, and technical analysis.</p>
+    <ArticleList items={items} />
+  </section>
+</BaseLayout>
+
+<style>
+  .listing {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 24px;
+  }
+
+  .listing h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .listing-desc {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+</style>
