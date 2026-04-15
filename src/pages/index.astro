@@ -1,18 +1,63 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SearchInput from '../components/SearchInput.astro';
+import SectionCard from '../components/SectionCard.astro';
+import ArticleList from '../components/ArticleList.astro';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL;
+
+const blogPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 4);
+
+const kbArticles = (await getCollection('kb'))
+  .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf())
+  .slice(0, 4);
+
+const blogItems = blogPosts.map(post => ({
+  href: `${base}blog/${post.id}/`,
+  title: post.data.title,
+  meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+}));
+
+const kbItems = kbArticles.map(article => ({
+  href: `${base}kb/${article.id}/`,
+  title: article.data.title,
+  meta: article.data.tags[0],
+}));
 ---
 
 <BaseLayout title="Home">
-  <div class="hero">
+  <section class="hero">
     <h1>Firewall Flamingos</h1>
     <p class="subtitle">Security Research & Technical Knowledge</p>
-  </div>
+    <SearchInput />
+  </section>
+
+  <section class="sections">
+    <SectionCard>
+      <div class="section-header">
+        <a href={`${base}blog/`} class="section-link">Blog — Latest</a>
+        <a href={`${base}blog/`} class="view-all">View all &rarr;</a>
+      </div>
+      <ArticleList items={blogItems} />
+    </SectionCard>
+
+    <SectionCard>
+      <div class="section-header">
+        <a href={`${base}kb/`} class="section-link">Knowledge Base — Recent</a>
+        <a href={`${base}kb/`} class="view-all">View all &rarr;</a>
+      </div>
+      <ArticleList items={kbItems} />
+    </SectionCard>
+  </section>
 </BaseLayout>
 
 <style>
   .hero {
     text-align: center;
-    padding: 64px 24px;
+    padding: 64px 24px 48px;
   }
 
   .hero h1 {
@@ -26,5 +71,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .sections {
+    display: flex;
+    gap: 16px;
+    padding: 0 24px 48px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .sections > :global(.glow-card) {
+    flex: 1;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .view-all {
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: color 0.2s ease;
+  }
+
+  .view-all:hover {
+    color: var(--accent);
   }
 </style>
