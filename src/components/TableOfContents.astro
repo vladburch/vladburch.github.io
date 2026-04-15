@@ -1,0 +1,72 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const filteredHeadings = headings.filter(h => h.depth <= 3);
+---
+
+{filteredHeadings.length > 0 && (
+  <aside class="toc">
+    <div class="toc-title">On this page</div>
+    <nav class="toc-nav">
+      {filteredHeadings.map(heading => (
+        <a
+          href={`#${heading.slug}`}
+          class:list={['toc-link', { sub: heading.depth === 3 }]}
+        >
+          {heading.text}
+        </a>
+      ))}
+    </nav>
+  </aside>
+)}
+
+<style>
+  .toc {
+    width: 200px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 24px;
+    align-self: flex-start;
+  }
+
+  .toc-title {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .toc-nav {
+    border-left: 1px solid rgba(168, 85, 247, 0.15);
+    padding-left: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .toc-link {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 3px 0;
+    transition: color 0.2s ease;
+  }
+
+  .toc-link:hover {
+    color: var(--accent);
+  }
+
+  .toc-link.sub {
+    padding-left: 12px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .toc-link.sub:hover {
+    color: var(--accent);
+  }
+</style>
