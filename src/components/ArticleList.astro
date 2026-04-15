@@ -1,0 +1,49 @@
+---
+interface ArticleItem {
+  href: string;
+  title: string;
+  meta: string;
+}
+
+interface Props {
+  items: ArticleItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="article-list">
+  {items.map(item => (
+    <div class="article-row">
+      <a href={item.href} class="article-link">{item.title}</a>
+      <span class="article-meta">{item.meta}</span>
+    </div>
+  ))}
+</div>
+
+<style>
+  .article-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .article-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.06);
+  }
+
+  .article-row:last-child {
+    border-bottom: none;
+  }
+
+  .article-meta {
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    margin-left: 12px;
+  }
+</style>

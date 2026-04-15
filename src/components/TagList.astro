@@ -1,0 +1,22 @@
+---
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<div class="tag-list">
+  {tags.map(tag => (
+    <a href={`${base}tags/${tag}/`} class="tag">{tag}</a>
+  ))}
+</div>
+
+<style>
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+</style>
