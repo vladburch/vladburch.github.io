@@ -1,0 +1,72 @@
+---
+interface Props {
+  placeholder?: string;
+  size?: 'default' | 'large';
+}
+
+const { placeholder = 'Search articles, tags, keywords...', size = 'default' } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<form action={`${base}search/`} method="get" class:list={['search-form', size]}>
+  <div class="gradient-border">
+    <div class="gradient-border-inner search-inner">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input
+        type="text"
+        name="q"
+        placeholder={placeholder}
+        class="search-input"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+</form>
+
+<style>
+  .search-form {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .search-form.large {
+    max-width: 520px;
+  }
+
+  .search-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+  }
+
+  .search-form.large .search-inner {
+    padding: 12px 16px;
+  }
+
+  .search-icon {
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .search-input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .search-form.large .search-input {
+    font-size: 14px;
+  }
+
+  .search-input::placeholder {
+    color: var(--text-dim);
+  }
+</style>
