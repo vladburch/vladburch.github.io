@@ -32,18 +32,25 @@ const { items } = Astro.props;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(168, 85, 247, 0.06);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(14, 165, 233, 0.04);
+    transition: border-color 0.3s;
   }
 
   .article-row:last-child {
     border-bottom: none;
   }
 
+  .article-row:hover {
+    border-bottom-color: rgba(14, 165, 233, 0.1);
+  }
+
   .article-meta {
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     color: var(--text-dim);
     white-space: nowrap;
-    margin-left: 12px;
+    margin-left: 16px;
+    letter-spacing: 0.04em;
   }
 </style>
