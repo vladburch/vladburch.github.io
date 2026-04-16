@@ -1,24 +1,23 @@
 ---
 const currentPath = Astro.url.pathname;
-const base = import.meta.env.BASE_URL;
 
 const navLinks = [
-  { href: `${base}`, label: 'Home' },
-  { href: `${base}blog/`, label: 'Blog' },
-  { href: `${base}kb/`, label: 'Knowledge Base' },
-  { href: `${base}about/`, label: 'About' },
+  { href: '/', label: 'Home' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/knowledge_base/', label: 'Knowledge Base' },
+  { href: '/about/', label: 'About' },
 ];
 
 function isActive(href: string): boolean {
-  if (href === base || href === `${base}/`) {
-    return currentPath === base || currentPath === `${base}/`;
+  if (href === '/') {
+    return currentPath === '/';
   }
   return currentPath.startsWith(href);
 }
 ---
 
 <header class="header">
-  <a href={base} class="logo">Firewall Flamingos</a>
+  <a href="/" class="logo">Firewall Flamingos</a>
   <nav class="nav">
     {navLinks.map(link => (
       <a

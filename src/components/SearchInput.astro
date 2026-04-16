@@ -5,10 +5,9 @@ interface Props {
 }
 
 const { placeholder = 'Search articles, tags, keywords...', size = 'default' } = Astro.props;
-const base = import.meta.env.BASE_URL;
 ---
 
-<form action={`${base}search/`} method="get" class:list={['search-form', size]}>
+<form action="/search/" method="get" class:list={['search-form', size]}>
   <div class="gradient-border">
     <div class="gradient-border-inner search-inner">
       <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

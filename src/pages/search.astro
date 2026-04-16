@@ -10,7 +10,6 @@ for (const post of blogPosts) post.data.tags.forEach(t => allTags.add(t));
 for (const article of kbArticles) article.data.tags.forEach(t => allTags.add(t));
 const sortedTags = Array.from(allTags).sort();
 
-const searchQuery = Astro.url.searchParams.get('q') ?? '';
 ---
 
 <BaseLayout title="Search" description="Search articles, tags, and keywords.">
@@ -26,7 +25,6 @@ const searchQuery = Astro.url.searchParams.get('q') ?? '';
             type="text"
             id="search-input"
             placeholder="Search articles, tags, keywords..."
-            value={searchQuery}
             autocomplete="off"
           />
         </div>
@@ -53,93 +51,97 @@ const searchQuery = Astro.url.searchParams.get('q') ?? '';
       <p class="results-hint">Start typing to search...</p>
     </div>
   </section>
-</BaseLayout>
 
-<script>
-  async function initSearch() {
-    const input = document.getElementById('search-input') as HTMLInputElement;
-    const resultsContainer = document.getElementById('search-results')!;
-    const sectionBtns = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
-    const tagBtns = document.querySelectorAll<HTMLButtonElement>('.tag-filter');
+  <script is:inline type="module">
+    const input = document.getElementById('search-input');
+    const resultsContainer = document.getElementById('search-results');
+    const sectionBtns = document.querySelectorAll('.filter-btn');
+    const tagBtns = document.querySelectorAll('.tag-filter');
 
-    // Load Pagefind
-    // @ts-ignore
-    const pagefind = await import('/pagefind/pagefind.js');
-    await pagefind.init();
-
-    let currentSection = 'all';
-    let activeTags = new Set<string>();
-
-    sectionBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        sectionBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentSection = btn.dataset.section!;
-        performSearch();
-      });
-    });
-
-    tagBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tag = btn.dataset.tag!;
-        if (activeTags.has(tag)) {
-          activeTags.delete(tag);
-          btn.classList.remove('active');
-        } else {
-          activeTags.add(tag);
-          btn.classList.add('active');
-        }
-        performSearch();
-      });
-    });
-
-    async function performSearch() {
-      const query = input.value.trim();
-      if (!query) {
-        resultsContainer.innerHTML = '<p class="results-hint">Start typing to search...</p>';
-        return;
-      }
-
-      const filters: Record<string, string[]> = {};
-      if (currentSection !== 'all') {
-        filters.section = [currentSection === 'KB' ? 'Knowledge Base' : currentSection];
-      }
-
-      const search = await pagefind.search(query, { filters });
-      const results = await Promise.all(search.results.slice(0, 20).map((r: any) => r.data()));
-
-      // Filter by tags client-side if any active
-      const filtered = activeTags.size > 0
-        ? results.filter((r: any) => {
-            const meta = r.meta;
-            return meta.tag && activeTags.has(meta.tag);
-          })
-        : results;
-
-      if (filtered.length === 0) {
-        resultsContainer.innerHTML = `<p class="results-hint">No results for "${query}"</p>`;
-        return;
-      }
-
-      resultsContainer.innerHTML = `
-        <p class="results-count">${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${query}"</p>
-        ${filtered.map((r: any) => `
-          <div class="result-item">
-            <a href="${r.url}" class="result-title">${r.meta.title || r.url}</a>
-            <p class="result-excerpt">${r.excerpt}</p>
-          </div>
-        `).join('')}
-      `;
+    let pagefind;
+    try {
+      pagefind = await import('/pagefind/pagefind.js');
+      await pagefind.init();
+    } catch (e) {
+      resultsContainer.innerHTML = '<p class="results-hint">Search index not available. Run a production build first.</p>';
+      console.error('Pagefind init error:', e);
     }
 
-    input.addEventListener('input', performSearch);
+    if (pagefind) {
+      let currentSection = 'all';
+      let activeTags = new Set();
 
-    // Run initial search if query param present
-    if (input.value) performSearch();
-  }
+      sectionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sectionBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentSection = btn.dataset.section;
+          performSearch();
+        });
+      });
 
-  initSearch();
-</script>
+      tagBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tag = btn.dataset.tag;
+          if (activeTags.has(tag)) {
+            activeTags.delete(tag);
+            btn.classList.remove('active');
+          } else {
+            activeTags.add(tag);
+            btn.classList.add('active');
+          }
+          performSearch();
+        });
+      });
+
+      async function performSearch() {
+        const query = input.value.trim();
+        if (!query) {
+          resultsContainer.innerHTML = '<p class="results-hint">Start typing to search...</p>';
+          return;
+        }
+
+        const filters = {};
+        if (currentSection !== 'all') {
+          filters.section = [currentSection === 'KB' ? 'Knowledge Base' : currentSection];
+        }
+
+        const search = await pagefind.search(query, { filters });
+        const results = await Promise.all(search.results.slice(0, 20).map((r) => r.data()));
+
+        const filtered = activeTags.size > 0
+          ? results.filter((r) => {
+              const meta = r.meta;
+              return meta.tag && activeTags.has(meta.tag);
+            })
+          : results;
+
+        if (filtered.length === 0) {
+          resultsContainer.innerHTML = '<p class="results-hint">No results for "' + query + '"</p>';
+          return;
+        }
+
+        resultsContainer.innerHTML =
+          '<p class="results-count">' + filtered.length + ' result' + (filtered.length !== 1 ? 's' : '') + ' for "' + query + '"</p>' +
+          filtered.map((r) =>
+            '<div class="result-item">' +
+              '<a href="' + r.url + '" class="result-title">' + (r.meta.title || r.url) + '</a>' +
+              '<p class="result-excerpt">' + r.excerpt + '</p>' +
+            '</div>'
+          ).join('');
+      }
+
+      input.addEventListener('input', performSearch);
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const initialQuery = urlParams.get('q');
+      if (initialQuery) {
+        input.value = initialQuery;
+        performSearch();
+      }
+    }
+  </script>
+</BaseLayout>
 
 <style>
   .search-page {

@@ -20,10 +20,9 @@ interface Props {
 const { title, description, tags, headings, section, date, category, lastUpdated, body } = Astro.props;
 
 const readingTime = getReadingTime(body);
-const base = import.meta.env.BASE_URL;
 
 const sectionLabel = section === 'blog' ? 'Blog' : 'Knowledge Base';
-const sectionHref = `${base}${section === 'blog' ? 'blog' : 'kb'}/`;
+const sectionHref = section === 'blog' ? '/blog/' : '/knowledge_base/';
 
 const displayDate = date || lastUpdated;
 const dateLabel = displayDate

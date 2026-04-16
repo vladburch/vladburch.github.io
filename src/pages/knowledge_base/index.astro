@@ -3,13 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleList from '../../components/ArticleList.astro';
 import { getCollection } from 'astro:content';
 
-const base = import.meta.env.BASE_URL;
-
 const articles = (await getCollection('kb'))
   .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf());
 
 const items = articles.map(article => ({
-  href: `${base}kb/${article.id}/`,
+  href: `/knowledge_base/${article.id}/`,
   title: article.data.title,
   meta: article.data.tags[0],
 }));

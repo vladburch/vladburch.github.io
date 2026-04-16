@@ -5,8 +5,6 @@ import SectionCard from '../components/SectionCard.astro';
 import ArticleList from '../components/ArticleList.astro';
 import { getCollection } from 'astro:content';
 
-const base = import.meta.env.BASE_URL;
-
 const blogPosts = (await getCollection('blog'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 4);
@@ -16,13 +14,13 @@ const kbArticles = (await getCollection('kb'))
   .slice(0, 4);
 
 const blogItems = blogPosts.map(post => ({
-  href: `${base}blog/${post.id}/`,
+  href: `/blog/${post.id}/`,
   title: post.data.title,
   meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
 }));
 
 const kbItems = kbArticles.map(article => ({
-  href: `${base}kb/${article.id}/`,
+  href: `/knowledge_base/${article.id}/`,
   title: article.data.title,
   meta: article.data.tags[0],
 }));
@@ -38,16 +36,16 @@ const kbItems = kbArticles.map(article => ({
   <section class="sections">
     <SectionCard>
       <div class="section-header">
-        <a href={`${base}blog/`} class="section-link">Blog — Latest</a>
-        <a href={`${base}blog/`} class="view-all">View all &rarr;</a>
+        <a href="/blog/" class="section-link">Blog -- Latest</a>
+        <a href="/blog/" class="view-all">View all &rarr;</a>
       </div>
       <ArticleList items={blogItems} />
     </SectionCard>
 
     <SectionCard>
       <div class="section-header">
-        <a href={`${base}kb/`} class="section-link">Knowledge Base — Recent</a>
-        <a href={`${base}kb/`} class="view-all">View all &rarr;</a>
+        <a href="/knowledge_base/" class="section-link">Knowledge Base -- Recent</a>
+        <a href="/knowledge_base/" class="view-all">View all &rarr;</a>
       </div>
       <ArticleList items={kbItems} />
     </SectionCard>
@@ -76,6 +74,7 @@ const kbItems = kbArticles.map(article => ({
 
   .sections {
     display: flex;
+    align-items: flex-start;
     gap: 16px;
     padding: 0 24px 48px;
     max-width: 960px;

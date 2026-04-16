@@ -26,3 +26,7 @@ pnpm-debug.log*
 # project-specific
 .superpowers/
 .worktrees/
+CLAUDE.md
+.agents/
+docs/superpowers/
+skills-lock.json

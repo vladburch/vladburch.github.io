@@ -30,12 +30,11 @@ export async function getStaticPaths() {
 }
 
 const { tag, blogPosts, kbArticles } = Astro.props;
-const base = import.meta.env.BASE_URL;
 
 const blogItems = blogPosts
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .map(post => ({
-    href: `${base}blog/${post.id}/`,
+    href: `/blog/${post.id}/`,
     title: post.data.title,
     meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
   }));
@@ -43,7 +42,7 @@ const blogItems = blogPosts
 const kbItems = kbArticles
   .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf())
   .map(article => ({
-    href: `${base}kb/${article.id}/`,
+    href: `/knowledge_base/${article.id}/`,
     title: article.data.title,
     meta: 'KB',
   }));
