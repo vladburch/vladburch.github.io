@@ -117,7 +117,7 @@ code {
     135deg,
     var(--border-card-start),
     var(--border-card-end),
-    rgba(168, 85, 247, 0.05)
+    rgba(99, 102, 241, 0.05)
   );
   transition: all 0.4s ease;
 }
