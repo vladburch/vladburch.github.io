@@ -36,7 +36,7 @@ const kbItems = kbArticles.map(article => ({
   <section class="sections">
     <SectionCard>
       <div class="section-header">
-        <a href="/blog/" class="section-link">Blog -- Latest</a>
+        <a href="/blog/" class="section-link">Blog <span class="section-sub">Latest</span></a>
         <a href="/blog/" class="view-all">View all &rarr;</a>
       </div>
       <ArticleList items={blogItems} />
@@ -44,7 +44,7 @@ const kbItems = kbArticles.map(article => ({
 
     <SectionCard>
       <div class="section-header">
-        <a href="/knowledge_base/" class="section-link">Knowledge Base -- Recent</a>
+        <a href="/knowledge_base/" class="section-link">Knowledge Base <span class="section-sub">Recent</span></a>
         <a href="/knowledge_base/" class="view-all">View all &rarr;</a>
       </div>
       <ArticleList items={kbItems} />
@@ -102,6 +102,10 @@ const kbItems = kbArticles.map(article => ({
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border-subtle);
     font-size: 14px;
+  }
+
+  .section-sub {
+    color: var(--text-dim);
   }
 
   .view-all {
