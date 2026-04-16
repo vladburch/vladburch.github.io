@@ -171,8 +171,6 @@ code {
 
 .nav-link.active {
   color: var(--accent);
-  border-bottom: 2px solid var(--accent);
-  padding-bottom: 2px;
 }
 
 .section-link {
