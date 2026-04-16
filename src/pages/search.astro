@@ -166,9 +166,10 @@ const sortedTags = Array.from(allTags).sort();
     border: none;
     outline: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
     width: 100%;
-    font-family: inherit;
+    letter-spacing: 0.02em;
   }
 
   #search-input::placeholder {
@@ -187,10 +188,11 @@ const sortedTags = Array.from(allTags).sort();
   }
 
   .filter-label {
+    font-family: 'IBM Plex Mono', monospace;
     font-size: 10px;
     color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.1em;
     margin-right: 4px;
   }
 
@@ -198,12 +200,12 @@ const sortedTags = Array.from(allTags).sort();
     font-size: 11px;
     padding: 4px 12px;
     border-radius: 4px;
-    border: 1px solid rgba(168, 85, 247, 0.2);
+    border: 1px solid rgba(14, 165, 233, 0.2);
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: inherit;
+    font-family: 'IBM Plex Mono', monospace;
   }
 
   .filter-btn:hover {
@@ -212,7 +214,7 @@ const sortedTags = Array.from(allTags).sort();
   }
 
   .filter-btn.active {
-    background: rgba(168, 85, 247, 0.15);
+    background: rgba(14, 165, 233, 0.12);
     border-color: var(--accent);
     color: var(--accent);
   }
@@ -227,22 +229,22 @@ const sortedTags = Array.from(allTags).sort();
   .tag-filter {
     font-size: 10px;
     color: var(--text-dim);
-    border: 1px solid rgba(168, 85, 247, 0.12);
+    border: 1px solid rgba(14, 165, 233, 0.1);
     border-radius: 4px;
     padding: 2px 8px;
     background: transparent;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: inherit;
+    font-family: 'IBM Plex Mono', monospace;
   }
 
   .tag-filter:hover {
-    border-color: rgba(168, 85, 247, 0.3);
+    border-color: rgba(14, 165, 233, 0.25);
     color: var(--text-muted);
   }
 
   .tag-filter.active {
-    background: rgba(168, 85, 247, 0.1);
+    background: rgba(14, 165, 233, 0.08);
     border-color: var(--accent);
     color: var(--accent);
   }
@@ -260,7 +262,7 @@ const sortedTags = Array.from(allTags).sort();
 
   :global(.result-item) {
     padding: 14px 0;
-    border-bottom: 1px solid rgba(168, 85, 247, 0.08);
+    border-bottom: 1px solid rgba(14, 165, 233, 0.06);
   }
 
   :global(.result-title) {
@@ -283,7 +285,7 @@ const sortedTags = Array.from(allTags).sort();
   }
 
   :global(.result-excerpt mark) {
-    background: rgba(168, 85, 247, 0.2);
+    background: rgba(14, 165, 233, 0.15);
     color: var(--text-secondary);
     padding: 0 2px;
     border-radius: 2px;
