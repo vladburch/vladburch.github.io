@@ -192,7 +192,7 @@ code {
 }
 
 .article-link:hover {
-  color: var(--accent);
+  color: var(--accent-tertiary);
 }
 
 /* Tags */
