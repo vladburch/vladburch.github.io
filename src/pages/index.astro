@@ -116,4 +116,19 @@ const kbItems = kbArticles.map(article => ({
   .view-all:hover {
     color: var(--accent);
   }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding: 48px 20px 32px;
+    }
+
+    .hero h1 {
+      font-size: 28px;
+    }
+
+    .sections {
+      flex-direction: column;
+      padding: 8px 20px 40px;
+    }
+  }
 </style>

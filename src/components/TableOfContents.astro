@@ -75,4 +75,10 @@ const filteredHeadings = headings.filter(h => h.depth <= 3);
     color: var(--accent);
     border-left-color: var(--accent);
   }
+
+  @media (max-width: 768px) {
+    .toc {
+      display: none;
+    }
+  }
 </style>

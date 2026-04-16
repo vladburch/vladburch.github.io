@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 const blogPosts = await getCollection('blog');
 const kbArticles = await getCollection('kb');
@@ -9,6 +9,23 @@ const allTags = new Set<string>();
 for (const post of blogPosts) post.data.tags.forEach(t => allTags.add(t));
 for (const article of kbArticles) article.data.tags.forEach(t => allTags.add(t));
 const sortedTags = Array.from(allTags).sort();
+
+const fallbackIndex = [
+  ...blogPosts.map(post => ({
+    url: `/blog/${post.id}/`,
+    title: post.data.title,
+    description: post.data.description,
+    section: 'Blog',
+    tags: post.data.tags,
+  })),
+  ...kbArticles.map(article => ({
+    url: `/knowledge_base/${article.id}/`,
+    title: article.data.title,
+    description: article.data.description,
+    section: 'Knowledge Base',
+    tags: article.data.tags,
+  })),
+];
 
 ---
 
@@ -52,37 +69,45 @@ const sortedTags = Array.from(allTags).sort();
     </div>
   </section>
 
+  <script is:inline define:vars={{ fallbackIndex }}>
+    window.__searchIndex = fallbackIndex;
+  </script>
+
   <script is:inline type="module">
-    const input = document.getElementById('search-input');
-    const resultsContainer = document.getElementById('search-results');
-    const sectionBtns = document.querySelectorAll('.filter-btn');
-    const tagBtns = document.querySelectorAll('.tag-filter');
+    (async function() {
+      var input = document.getElementById('search-input');
+      var resultsContainer = document.getElementById('search-results');
+      var sectionBtns = document.querySelectorAll('.filter-btn');
+      var tagBtns = document.querySelectorAll('.tag-filter');
 
-    let pagefind;
-    try {
-      pagefind = await import('/pagefind/pagefind.js');
-      await pagefind.init();
-    } catch (e) {
-      resultsContainer.innerHTML = '<p class="results-hint">Search index not available. Run a production build first.</p>';
-      console.error('Pagefind init error:', e);
-    }
+      var hasWasm = typeof WebAssembly === 'object';
+      var pagefind = null;
 
-    if (pagefind) {
-      let currentSection = 'all';
-      let activeTags = new Set();
+      if (hasWasm) {
+        try {
+          pagefind = await import(new URL('/pagefind/pagefind.js', window.location.origin).href);
+          await pagefind.init();
+        } catch (e) {
+          pagefind = null;
+          console.warn('Pagefind unavailable, using fallback search:', e);
+        }
+      }
 
-      sectionBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          sectionBtns.forEach(b => b.classList.remove('active'));
+      var currentSection = 'all';
+      var activeTags = new Set();
+
+      sectionBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          sectionBtns.forEach(function(b) { b.classList.remove('active'); });
           btn.classList.add('active');
           currentSection = btn.dataset.section;
           performSearch();
         });
       });
 
-      tagBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tag = btn.dataset.tag;
+      tagBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var tag = btn.dataset.tag;
           if (activeTags.has(tag)) {
             activeTags.delete(tag);
             btn.classList.remove('active');
@@ -94,23 +119,77 @@ const sortedTags = Array.from(allTags).sort();
         });
       });
 
+      function fallbackSearch(query) {
+        var index = window.__searchIndex || [];
+        var lower = query.toLowerCase();
+        var words = lower.split(/\s+/).filter(function(w) { return w.length > 0; });
+
+        var results = [];
+        for (var i = 0; i < index.length; i++) {
+          var item = index[i];
+
+          if (currentSection !== 'all') {
+            var wantSection = currentSection === 'KB' ? 'Knowledge Base' : currentSection;
+            if (item.section !== wantSection) continue;
+          }
+
+          if (activeTags.size > 0) {
+            var hasTag = false;
+            for (var t = 0; t < item.tags.length; t++) {
+              if (activeTags.has(item.tags[t])) { hasTag = true; break; }
+            }
+            if (!hasTag) continue;
+          }
+
+          var searchable = (item.title + ' ' + item.description + ' ' + item.tags.join(' ')).toLowerCase();
+          var matched = true;
+          for (var w = 0; w < words.length; w++) {
+            if (searchable.indexOf(words[w]) === -1) { matched = false; break; }
+          }
+          if (matched) {
+            var excerpt = item.description;
+            for (var w = 0; w < words.length; w++) {
+              var re = new RegExp('(' + words[w].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+              excerpt = excerpt.replace(re, '<mark>$1</mark>');
+            }
+            results.push({ url: item.url, title: item.title, excerpt: excerpt });
+          }
+        }
+        return results;
+      }
+
       async function performSearch() {
-        const query = input.value.trim();
+        var query = input.value.trim();
         if (!query) {
           resultsContainer.innerHTML = '<p class="results-hint">Start typing to search...</p>';
           return;
         }
 
-        const filters = {};
-        if (currentSection !== 'all') {
-          filters.section = [currentSection === 'KB' ? 'Knowledge Base' : currentSection];
-        }
-        if (activeTags.size > 0) {
-          filters.tag = Array.from(activeTags);
-        }
+        var filtered;
 
-        const search = await pagefind.search(query, { filters });
-        const filtered = await Promise.all(search.results.slice(0, 20).map((r) => r.data()));
+        if (pagefind) {
+          try {
+            var searchFilters = {};
+            if (currentSection !== 'all') {
+              searchFilters.section = [currentSection === 'KB' ? 'Knowledge Base' : currentSection];
+            }
+            if (activeTags.size > 0) {
+              searchFilters.tag = Array.from(activeTags);
+            }
+
+            var search = await pagefind.search(query, { filters: searchFilters });
+            var data = await Promise.all(search.results.slice(0, 20).map(function(r) { return r.data(); }));
+
+            filtered = data.map(function(r) {
+              return { url: r.url, title: r.meta.title || r.url, excerpt: r.excerpt };
+            });
+          } catch (e) {
+            console.warn('Pagefind search failed, falling back:', e);
+            filtered = fallbackSearch(query);
+          }
+        } else {
+          filtered = fallbackSearch(query);
+        }
 
         if (filtered.length === 0) {
           resultsContainer.innerHTML = '<p class="results-hint">No results for "' + query + '"</p>';
@@ -119,23 +198,23 @@ const sortedTags = Array.from(allTags).sort();
 
         resultsContainer.innerHTML =
           '<p class="results-count">' + filtered.length + ' result' + (filtered.length !== 1 ? 's' : '') + ' for "' + query + '"</p>' +
-          filtered.map((r) =>
-            '<div class="result-item">' +
-              '<a href="' + r.url + '" class="result-title">' + (r.meta.title || r.url) + '</a>' +
+          filtered.map(function(r) {
+            return '<div class="result-item">' +
+              '<a href="' + r.url + '" class="result-title">' + r.title + '</a>' +
               '<p class="result-excerpt">' + r.excerpt + '</p>' +
-            '</div>'
-          ).join('');
+            '</div>';
+          }).join('');
       }
 
       input.addEventListener('input', performSearch);
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const initialQuery = urlParams.get('q');
+      var urlParams = new URLSearchParams(window.location.search);
+      var initialQuery = urlParams.get('q');
       if (initialQuery) {
         input.value = initialQuery;
         performSearch();
       }
-    }
+    })();
   </script>
 </BaseLayout>
 
@@ -181,6 +260,7 @@ const sortedTags = Array.from(allTags).sort();
     align-items: center;
     gap: 8px;
     margin-bottom: 12px;
+    flex-wrap: wrap;
   }
 
   .filter-label {
@@ -285,5 +365,11 @@ const sortedTags = Array.from(allTags).sort();
     color: var(--text-secondary);
     padding: 0 2px;
     border-radius: 2px;
+  }
+
+  @media (max-width: 640px) {
+    .search-page {
+      padding: 24px 16px 40px;
+    }
   }
 </style>
