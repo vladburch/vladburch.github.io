@@ -28,5 +28,5 @@ pnpm-debug.log*
 .worktrees/
 CLAUDE.md
 .agents/
-docs/superpowers/
+docs/
 skills-lock.json
