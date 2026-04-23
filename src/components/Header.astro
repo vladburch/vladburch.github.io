@@ -2,163 +2,229 @@
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/blog/', label: 'Blog' },
+  { href: '/blog/', label: 'Writing' },
   { href: '/knowledge_base/', label: 'Knowledge Base' },
   { href: '/about/', label: 'About' },
 ];
 
 function isActive(href: string): boolean {
-  if (href === '/') {
-    return currentPath === '/';
-  }
+  if (href === '/') return currentPath === '/';
   return currentPath.startsWith(href);
 }
 ---
 
-<header class="header">
-  <a href="/" class="logo">
-    <span class="logo-mark"></span>
-    Firewall Flamingos
+<header class="tb" id="topbar">
+  <a href="/" class="tb__brand">
+    <img src="/logo-mark.svg" alt="" width="28" height="28" />
+    <div class="tb__word">
+      <div>FIREWALL</div>
+      <div>FLAMINGOS</div>
+    </div>
   </a>
-  <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
-    <span class="menu-bar"></span>
-    <span class="menu-bar"></span>
-    <span class="menu-bar"></span>
-  </button>
-  <nav class="nav">
+
+  <nav class="tb__nav" id="topbar-nav">
     {navLinks.map(link => (
       <a
         href={link.href}
-        class:list={['nav-link', { active: isActive(link.href) }]}
+        class:list={[{ 'is-current': isActive(link.href) }]}
       >
         {link.label}
       </a>
     ))}
   </nav>
+
+  <div class="tb__right">
+    <div class="tb__live">
+      <span class="ff-live-dot"></span>
+      <span>SIG · LIVE</span>
+    </div>
+    <button class="tb__cmd" data-cmd-open aria-label="Open search">
+      <span class="tb__cmd-prompt">›</span>
+      <span>search</span>
+      <span class="ff-kbd">⌘K</span>
+    </button>
+    <button class="tb__burger" id="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 
 <script>
-  const toggle = document.querySelector('.menu-toggle');
-  const nav = document.querySelector('.nav');
-  toggle?.addEventListener('click', () => {
+  const tb = document.getElementById('topbar') as HTMLElement;
+  const toggle = document.getElementById('menu-toggle') as HTMLButtonElement;
+  const nav = document.getElementById('topbar-nav') as HTMLElement;
+
+  window.addEventListener('scroll', () => {
+    tb.classList.toggle('tb--scrolled', window.scrollY > 8);
+  });
+
+  toggle.addEventListener('click', () => {
     const expanded = toggle.getAttribute('aria-expanded') === 'true';
     toggle.setAttribute('aria-expanded', String(!expanded));
-    nav?.classList.toggle('open');
+    nav.classList.toggle('is-open');
   });
 </script>
 
 <style>
-  .header {
+  .tb {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    z-index: 100;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px 32px;
-    border-bottom: 1px solid var(--border-subtle);
-    position: relative;
-    z-index: 100;
+    gap: 28px;
+    padding: 0 28px;
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-med);
   }
 
-  .logo {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
+  .tb--scrolled {
+    border-bottom-color: var(--border-hair);
+  }
+
+  .tb__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .tb__word {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: var(--tracking-widest);
+    line-height: 1.1;
+    color: var(--fg-1);
+  }
+
+  .tb__nav {
+    display: flex;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .tb__nav a {
+    padding: 8px 12px;
+    font-size: var(--fs-sm);
+    color: var(--fg-2);
+    border-radius: var(--r-2);
+    transition: all var(--dur-fast);
+    white-space: nowrap;
+  }
+
+  .tb__nav a:hover {
+    background: var(--bg-2);
+    color: var(--fg-1);
+  }
+
+  .tb__nav a.is-current {
+    color: var(--fg-1);
+    font-weight: 600;
+  }
+
+  .tb__right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .tb__live {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--fg-2);
+    white-space: nowrap;
   }
 
-  .logo-mark {
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
-    animation: pulse-dot 3s ease-in-out infinite;
+  .tb__cmd {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-2);
+    background: var(--bg-1);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--fg-3);
+    transition: all var(--dur-fast);
+    white-space: nowrap;
   }
 
-  @keyframes pulse-dot {
-    0%, 100% { box-shadow: 0 0 8px rgba(14, 165, 233, 0.4); }
-    50% { box-shadow: 0 0 14px rgba(14, 165, 233, 0.7); }
+  .tb__cmd:hover {
+    border-color: var(--fg-1);
+    color: var(--fg-1);
   }
 
-  .menu-toggle {
+  .tb__cmd-prompt {
+    color: var(--fg-3);
+  }
+
+  .tb__burger {
     display: none;
     flex-direction: column;
     gap: 4px;
     background: none;
     border: none;
-    cursor: pointer;
     padding: 4px;
-    z-index: 20;
   }
 
-  .menu-bar {
+  .tb__burger span {
     display: block;
     width: 18px;
-    height: 2px;
-    background: var(--text-muted);
-    border-radius: 1px;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+    height: 1.5px;
+    background: var(--fg-2);
+    transition: all var(--dur-fast);
   }
 
-  .menu-toggle[aria-expanded="true"] .menu-bar:nth-child(1) {
-    transform: translateY(6px) rotate(45deg);
-  }
-  .menu-toggle[aria-expanded="true"] .menu-bar:nth-child(2) {
-    opacity: 0;
-  }
-  .menu-toggle[aria-expanded="true"] .menu-bar:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg);
-  }
-
-  .nav {
-    display: flex;
-    gap: 28px;
-  }
-
-  .nav :global(.nav-link) {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    position: relative;
-  }
-
-  @media (max-width: 640px) {
-    .header {
-      padding: 16px 20px;
+  @media (max-width: 700px) {
+    .tb {
+      padding: 0 20px;
+      gap: 12px;
     }
 
-    .menu-toggle {
-      display: flex;
-    }
-
-    .nav {
+    .tb__nav {
       display: none;
       position: absolute;
-      top: 100%;
+      top: 56px;
       left: 0;
       right: 0;
       flex-direction: column;
       gap: 0;
-      background: var(--bg-primary);
-      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-hair);
       padding: 8px 0;
       z-index: 100;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      box-shadow: var(--shadow-2);
     }
 
-    .nav.open {
+    .tb__nav.is-open {
       display: flex;
     }
 
-    .nav :global(.nav-link) {
-      padding: 10px 20px;
-      font-size: 11px;
+    .tb__nav a {
+      border-radius: 0;
+      padding: 12px 20px;
+    }
+
+    .tb__live {
+      display: none;
+    }
+
+    .tb__burger {
+      display: flex;
     }
   }
 </style>

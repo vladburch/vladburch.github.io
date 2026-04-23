@@ -3,139 +3,110 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="About" description="About the author of Firewall Flamingos.">
-  <section class="about">
-    <div class="avatar">
-      <div class="avatar-ring">
-        <div class="avatar-inner">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
-          </svg>
-        </div>
-      </div>
-    </div>
+  <section class="about container">
+    <div class="ff-eyebrow" style="margin-bottom:24px">About</div>
+    <h1 class="about__h1">
+      One researcher.<br />
+      <span class="about__ser">A lot of hex.</span>
+    </h1>
+    <p class="about__lead">
+      Firewall Flamingos is a solo threat-intelligence and reverse-engineering publication.
+      I disassemble signed drivers, read memory dumps for fun, and spend an unhealthy amount
+      of time thinking about how LLMs change offence and defence.
+      Everything here is written by me; nothing is sponsored; nothing is generated.
+    </p>
 
-    <h1>Vladislav Burtsev</h1>
-    <p class="role">Security Researcher</p>
-
-    <div class="bio">
-      <p>Passionate about reverse engineering, embedded systems security, and network protocol analysis. I break things to understand how they work, then write about it so others can learn too.</p>
-      <p>This blog is a collection of my research notes and practical guides accumulated over the years.</p>
-    </div>
-
-    <div class="links">
-      <a href="https://github.com/vladburch" class="social-link" target="_blank" rel="noopener noreferrer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="about__links">
+      <a href="https://github.com/vladburch" target="_blank" rel="noopener" class="about__link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
         </svg>
-        GitHub
+        GitHub · @vladburch
       </a>
-      <a href="https://www.linkedin.com/in/vladislav-burtsev/" class="social-link" target="_blank" rel="noopener noreferrer">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <a href="https://www.linkedin.com/in/vladislav-burtsev/" target="_blank" rel="noopener" class="about__link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
           <rect x="2" y="9" width="4" height="12" />
           <circle cx="4" cy="4" r="2" />
         </svg>
-        LinkedIn
+        LinkedIn · Vladislav Burtsev
       </a>
-      <a href="mailto:study.white.fox@gmail.com" class="social-link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <a href="mailto:study.white.fox@gmail.com" class="about__link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
           <polyline points="22,6 12,13 2,6" />
         </svg>
         Email
       </a>
     </div>
+
+    <p class="about__pgp">
+      PGP D9FF·3BFF·4D3D · Signal on request · no DMs on corporate platforms.
+    </p>
   </section>
 </BaseLayout>
 
 <style>
   .about {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 48px 24px;
-    text-align: center;
+    padding: 96px 28px;
+    max-width: 720px;
   }
 
-  .avatar {
-    margin-bottom: 20px;
+  .about__h1 {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(44px, 7vw, 84px);
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    margin: 0 0 32px;
+    color: var(--fg-1);
   }
 
-  .avatar-ring {
-    width: 96px;
-    height: 96px;
-    border-radius: 50%;
-    padding: 2px;
-    background: conic-gradient(
-      from 0deg,
-      #0ea5e9,
-      #6366f1,
-      #67e8f9,
-      #0ea5e9
-    );
-    margin: 0 auto;
-  }
-
-  .avatar-inner {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: #0c0c0f;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .about h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
+  .about__ser {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
     letter-spacing: -0.02em;
   }
 
-  .role {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 0.06em;
-    margin-bottom: 20px;
+  .about__lead {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--fg-1);
+    margin-bottom: 40px;
   }
 
-  .bio {
-    text-align: left;
-    margin-bottom: 28px;
-  }
-
-  .bio p {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-  }
-
-  .bio p:last-child {
-    margin-bottom: 0;
-  }
-
-  .links {
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 20px;
+  .about__links {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 4px;
+    margin-bottom: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-hair);
   }
 
-  .social-link {
+  .about__link {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
-    font-size: 13px;
-    padding: 6px 0;
-    transition: color 0.2s ease;
+    gap: 10px;
+    font-size: var(--fs-base);
+    color: var(--fg-2);
+    padding: 8px 0;
+    transition: color var(--dur-fast);
   }
 
-  .social-link:hover {
-    color: var(--accent);
+  .about__link:hover { color: var(--fg-1); }
+
+  .about__pgp {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    color: var(--fg-3);
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 700px) {
+    .about {
+      padding: 64px 20px;
+    }
   }
 </style>

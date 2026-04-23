@@ -11,74 +11,71 @@ const filteredHeadings = headings.filter(h => h.depth <= 3);
 
 {filteredHeadings.length > 0 && (
   <aside class="toc">
-    <div class="toc-title">On this page</div>
-    <nav class="toc-nav">
+    <div class="ff-eyebrow toc__title">On this page</div>
+    <ol class="toc__list">
       {filteredHeadings.map(heading => (
-        <a
-          href={`#${heading.slug}`}
-          class:list={['toc-link', { sub: heading.depth === 3 }]}
-        >
-          {heading.text}
-        </a>
+        <li class:list={['toc__item', { 'toc__item--sub': heading.depth === 3 }]}>
+          <a href={`#${heading.slug}`}>{heading.text}</a>
+        </li>
       ))}
-    </nav>
+    </ol>
   </aside>
 )}
 
 <style>
   .toc {
-    width: 200px;
+    padding: 16px;
+    border: 1px solid var(--border-hair);
+    border-radius: var(--r-3);
+    background: var(--bg-2);
+    width: 220px;
     flex-shrink: 0;
     position: sticky;
-    top: 24px;
+    top: 80px;
     align-self: flex-start;
   }
 
-  .toc-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-subtle);
+  .toc__title { margin-bottom: 10px; }
+
+  .toc__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: toc;
   }
 
-  .toc-nav {
+  .toc__item {
+    counter-increment: toc;
+    font-size: var(--fs-sm);
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border-hair);
+    color: var(--fg-2);
     display: flex;
-    flex-direction: column;
+    gap: 10px;
+    align-items: baseline;
   }
 
-  .toc-link {
-    font-size: 12px;
-    color: var(--text-dim);
-    padding: 4px 0 4px 12px;
-    border-left: 1px solid rgba(14, 165, 233, 0.08);
-    transition: all 0.25s ease;
-    line-height: 1.4;
+  .toc__item::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
   }
 
-  .toc-link:hover {
-    color: var(--accent);
-    border-left-color: var(--accent);
+  .toc__item:last-child { border: 0; }
+
+  .toc__item a {
+    color: inherit;
+    transition: color var(--dur-fast);
   }
 
-  .toc-link.sub {
-    padding-left: 24px;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
+  .toc__item a:hover { color: var(--fg-1); }
 
-  .toc-link.sub:hover {
-    color: var(--accent);
-    border-left-color: var(--accent);
-  }
+  .toc__item--sub { padding-left: 12px; font-size: 12px; }
 
   @media (max-width: 768px) {
-    .toc {
-      display: none;
-    }
+    .toc { display: none; }
   }
 </style>

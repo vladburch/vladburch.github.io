@@ -1,5 +1,15 @@
-<div class="glow-card">
-  <div class="glow-card-inner">
-    <slot />
-  </div>
+---
+---
+
+<div class="section-card">
+  <slot />
 </div>
+
+<style>
+  .section-card {
+    border: 1px solid var(--border-hair);
+    border-radius: var(--r-3);
+    padding: 20px;
+    flex: 1;
+  }
+</style>

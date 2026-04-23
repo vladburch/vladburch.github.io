@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleList from '../../components/ArticleList.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -31,39 +30,64 @@ export async function getStaticPaths() {
 
 const { tag, blogPosts, kbArticles } = Astro.props;
 
-const blogItems = blogPosts
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .map(post => ({
-    href: `/blog/${post.id}/`,
-    title: post.data.title,
-    meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-  }));
+function formatDate(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}·${m}·${day}`;
+}
 
-const kbItems = kbArticles
-  .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf())
-  .map(article => ({
-    href: `/knowledge_base/${article.id}/`,
-    title: article.data.title,
-    meta: 'KB',
-  }));
+const sortedBlog = blogPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const sortedKb = kbArticles.sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf());
+
+const total = sortedBlog.length + sortedKb.length;
 ---
 
 <BaseLayout title={`Tag: ${tag}`} description={`Articles tagged with "${tag}".`}>
-  <section class="tag-page">
-    <h1>Tag: <span class="tag-name">{tag}</span></h1>
-    <p class="count">{blogItems.length + kbItems.length} articles</p>
+  <section class="tag-page container">
+    <div class="ff-eyebrow" style="margin-bottom:16px">Tag</div>
+    <h1 class="tag-title">{tag}</h1>
+    <p class="tag-count">{total} article{total !== 1 ? 's' : ''}</p>
 
-    {blogItems.length > 0 && (
+    {sortedBlog.length > 0 && (
       <div class="group">
-        <h2>Blog</h2>
-        <ArticleList items={blogItems} />
+        <div class="ff-eyebrow group__label">Blog</div>
+        <div class="list__rows">
+          {sortedBlog.map(post => (
+            <a class="row" href={`/blog/${post.id}/`}>
+              <div class="row__body">
+                <div class="row__meta">
+                  <span>{post.data.category.toUpperCase()}</span>
+                  <span>·</span>
+                  <span>{formatDate(post.data.date)}</span>
+                </div>
+                <div class="row__title">{post.data.title}</div>
+              </div>
+              <div class="row__arrow">→</div>
+            </a>
+          ))}
+        </div>
       </div>
     )}
 
-    {kbItems.length > 0 && (
+    {sortedKb.length > 0 && (
       <div class="group">
-        <h2>Knowledge Base</h2>
-        <ArticleList items={kbItems} />
+        <div class="ff-eyebrow group__label">Knowledge Base</div>
+        <div class="list__rows">
+          {sortedKb.map(article => (
+            <a class="row" href={`/knowledge_base/${article.id}/`}>
+              <div class="row__body">
+                <div class="row__meta">
+                  <span>KB</span>
+                  <span>·</span>
+                  <span>{formatDate(article.data.lastUpdated)}</span>
+                </div>
+                <div class="row__title">{article.data.title}</div>
+              </div>
+              <div class="row__arrow">→</div>
+            </a>
+          ))}
+        </div>
       </div>
     )}
   </section>
@@ -71,39 +95,80 @@ const kbItems = kbArticles
 
 <style>
   .tag-page {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 48px 24px;
+    padding: 56px 28px 96px;
+    max-width: 960px;
   }
 
-  .tag-page h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
+  .tag-title {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(36px, 5vw, 60px);
+    letter-spacing: -0.04em;
+    margin: 0 0 8px;
+    color: var(--fg-1);
   }
 
-  .tag-name {
-    color: var(--accent);
+  .tag-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    margin-bottom: 40px;
   }
 
-  .count {
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--text-dim);
-    font-size: 12px;
-    margin-bottom: 24px;
-    letter-spacing: 0.03em;
+  .group { margin-bottom: 48px; }
+
+  .group__label { margin-bottom: 12px; }
+
+  .list__rows { border-top: 1px solid var(--border-hair); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-hair);
+    transition: background var(--dur-fast);
+    color: var(--fg-1);
   }
 
-  .group {
-    margin-bottom: 24px;
+  .row:hover { background: var(--bg-2); }
+
+  .row__meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--fg-3);
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
   }
 
-  .group h2 {
-    font-size: 13px;
+  .row__title {
+    font-family: var(--font-sans);
     font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 8px;
+    font-size: 19px;
+    line-height: 1.25;
     letter-spacing: -0.01em;
+  }
+
+  .row__arrow {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--fg-3);
+    transition: transform var(--dur-fast);
+    flex-shrink: 0;
+  }
+
+  .row:hover .row__arrow {
+    transform: translateX(4px);
+    color: var(--fg-1);
+  }
+
+  @media (max-width: 700px) {
+    .tag-page { padding: 32px 20px 64px; }
+    .row__title { font-size: 16px; }
   }
 </style>

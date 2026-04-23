@@ -1,43 +1,188 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleList from '../../components/ArticleList.astro';
 import { getCollection } from 'astro:content';
 
 const articles = (await getCollection('kb'))
   .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf());
 
-const items = articles.map(article => ({
-  href: `/knowledge_base/${article.id}/`,
-  title: article.data.title,
-  meta: article.data.tags[0],
-}));
+const allTags = ['All', ...Array.from(new Set(articles.flatMap(a => a.data.tags)))];
+
+function formatDate(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}·${m}·${day}`;
+}
 ---
 
 <BaseLayout title="Knowledge Base" description="Guides, cheat sheets, and quick references.">
-  <section class="listing">
-    <h1>Knowledge Base</h1>
-    <p class="listing-desc">Guides, cheat sheets, and quick references.</p>
-    <ArticleList items={items} />
+  <section class="list container">
+    <div class="list__head">
+      <div class="ff-eyebrow">Knowledge base · {articles.length} articles</div>
+      <div class="list__filters" id="filters">
+        {allTags.map(tag => (
+          <button class:list={['chip', { 'is-on': tag === 'All' }]} data-tag={tag}>
+            {tag}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="list__rows" id="article-rows">
+      {articles.map(article => (
+        <a
+          class="row"
+          href={`/knowledge_base/${article.id}/`}
+          data-tags={article.data.tags.join(',')}
+        >
+          <div class="row__num">KB</div>
+          <div class="row__body">
+            <div class="row__meta">
+              <span>{article.data.tags[0]?.toUpperCase()}</span>
+              <span>·</span>
+              <span>{formatDate(article.data.lastUpdated)}</span>
+            </div>
+            <div class="row__title">{article.data.title}</div>
+          </div>
+          <div class="row__arrow">→</div>
+        </a>
+      ))}
+    </div>
   </section>
 </BaseLayout>
 
+<script>
+  const filters = document.getElementById('filters');
+  const rows = document.getElementById('article-rows');
+
+  filters?.addEventListener('click', e => {
+    const btn = (e.target as HTMLElement).closest('.chip') as HTMLElement;
+    if (!btn) return;
+
+    filters.querySelectorAll('.chip').forEach(b => b.classList.remove('is-on'));
+    btn.classList.add('is-on');
+
+    const tag = btn.dataset.tag ?? 'All';
+
+    rows?.querySelectorAll<HTMLElement>('.row').forEach(row => {
+      if (tag === 'All' || (row.dataset.tags ?? '').split(',').includes(tag)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>
+
 <style>
-  .listing {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 48px 24px;
+  .list {
+    padding: 48px 28px 96px;
   }
 
-  .listing h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
+  .list__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
   }
 
-  .listing-desc {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin-bottom: 24px;
+  .list__filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-pill);
+    background: var(--bg-1);
+    color: var(--fg-2);
+    cursor: pointer;
+    transition: all var(--dur-fast);
+  }
+
+  .chip:hover {
+    border-color: var(--fg-1);
+    color: var(--fg-1);
+  }
+
+  .chip.is-on {
+    background: var(--fg-1);
+    color: var(--bg-1);
+    border-color: var(--fg-1);
+  }
+
+  .list__rows {
+    border-top: 1px solid var(--border-hair);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-hair);
+    transition: background var(--dur-fast);
+    color: var(--fg-1);
+  }
+
+  .row:hover { background: var(--bg-2); }
+
+  .row__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+  }
+
+  .row__meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--fg-3);
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .row__title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .row__arrow {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--fg-3);
+    transition: transform var(--dur-fast);
+  }
+
+  .row:hover .row__arrow {
+    transform: translateX(4px);
+    color: var(--fg-1);
+  }
+
+  @media (max-width: 700px) {
+    .list {
+      padding: 32px 20px 64px;
+    }
+
+    .row {
+      grid-template-columns: 48px 1fr auto;
+      gap: 12px;
+    }
+
+    .row__title { font-size: 16px; }
   }
 </style>

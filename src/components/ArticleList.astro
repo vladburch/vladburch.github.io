@@ -14,55 +14,59 @@ const { items } = Astro.props;
 
 <div class="article-list">
   {items.map(item => (
-    <div class="article-row">
-      <a href={item.href} class="article-link">{item.title}</a>
-      <span class="article-meta">{item.meta}</span>
-    </div>
+    <a href={item.href} class="article-row">
+      <div class="article-row__body">
+        <div class="article-row__meta">{item.meta}</div>
+        <div class="article-row__title">{item.title}</div>
+      </div>
+      <span class="article-row__arrow">→</span>
+    </a>
   ))}
 </div>
 
 <style>
   .article-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    border-top: 1px solid var(--border-hair);
   }
 
   .article-row {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(14, 165, 233, 0.04);
-    transition: border-color 0.3s;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-hair);
+    color: var(--fg-1);
+    transition: background var(--dur-fast);
   }
 
-  .article-row:last-child {
-    border-bottom: none;
-  }
+  .article-row:hover { background: var(--bg-2); }
 
-  .article-row:hover {
-    border-bottom-color: rgba(14, 165, 233, 0.1);
-  }
-
-  .article-meta {
-    font-family: 'IBM Plex Mono', monospace;
+  .article-row__meta {
+    font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-dim);
-    white-space: nowrap;
-    margin-left: 16px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    margin-bottom: 4px;
   }
 
-  @media (max-width: 480px) {
-    .article-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-    }
+  .article-row__title {
+    font-size: var(--fs-base);
+    font-weight: 500;
+    line-height: 1.3;
+  }
 
-    .article-meta {
-      margin-left: 0;
-    }
+  .article-row__arrow {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--fg-3);
+    flex-shrink: 0;
+    transition: transform var(--dur-fast);
+  }
+
+  .article-row:hover .article-row__arrow {
+    transform: translateX(3px);
+    color: var(--fg-1);
   }
 </style>

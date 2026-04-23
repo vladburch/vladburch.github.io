@@ -1,27 +1,201 @@
 ---
-const year = new Date().getFullYear();
 ---
 
-<footer class="footer">
-  <p>&copy; {year} Firewall Flamingos. All rights reserved.</p>
+<footer class="ft ff-dots--inverse">
+  <div class="ft__term">
+    <div class="ft__bar">
+      <span class="ff-live-dot"></span>
+      <span style="margin-left:8px">ff://threat-feed</span>
+      <span class="ft__bar-live">SIG LIVE · Δt 00:00:12</span>
+    </div>
+    <pre class="ft__pre"><span class="c"># {new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC</span>
+<span class="k">INFO</span>   <span class="s">Firewall Flamingos</span>  threat-intelligence · security-research
+<span class="k">FEED</span>   reverse-engineering · AI × security · CVE analysis
+<span class="c">› reading the adversary's mind, one binary at a time.</span></pre>
+  </div>
+
+  <div class="ft__cols">
+    <div>
+      <div class="ff-eyebrow">Reading</div>
+      <a href="/blog/">Archive</a>
+      <a href="/blog/">Writing</a>
+      <a href="/knowledge_base/">Knowledge Base</a>
+    </div>
+    <div>
+      <div class="ff-eyebrow">Elsewhere</div>
+      <a href="/feed.xml">RSS · /feed.xml</a>
+      <a href="https://github.com/vladburch" target="_blank" rel="noopener">GitHub · @vladburch</a>
+      <a href="/search/">Search</a>
+    </div>
+    <div>
+      <div class="ff-eyebrow">Subscribe</div>
+      <p class="ft__sub-desc">A terse digest. Findings only, no hype. No tracking.</p>
+      <div class="ft__form">
+        <input type="email" placeholder="you@domain.tld" aria-label="Email address" />
+        <button class="btn btn--sig btn--sm">Subscribe</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ft__base">
+    <div>© MMXXVI FIREWALL FLAMINGOS · SOLO OPERATOR</div>
+    <div>
+      PGP D9FF·3BFF·4D3D ·
+      <span style="color:var(--ff-signal)">signed</span> ·
+      <span style="color:var(--ff-verify)">sealed</span> ·
+      <span style="color:var(--ff-alarm)">exploitable</span>
+    </div>
+  </div>
 </footer>
 
 <style>
-  .footer {
-    padding: 24px 32px;
-    text-align: center;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    border-top: 1px solid var(--border-subtle);
-    position: relative;
-    z-index: 10;
-    letter-spacing: 0.03em;
+  .ft {
+    margin-top: var(--s-9);
+    background: var(--bg-inverse-1);
+    color: var(--fg-inverse-1);
+    background-image: radial-gradient(rgba(255,255,255,0.12) 1.2px, transparent 1.2px);
+    background-size: 14px 14px;
+    padding: 56px 28px 28px;
   }
 
-  @media (max-width: 640px) {
-    .footer {
-      padding: 20px 16px;
+  .ft__term {
+    max-width: 1280px;
+    margin: 0 auto 48px;
+    background: #121214;
+    border: 1px solid #1f1f23;
+    border-radius: var(--r-3);
+    overflow: hidden;
+    font-family: var(--font-mono);
+  }
+
+  .ft__bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #1f1f23;
+    background: var(--bg-inverse-1);
+    font-size: 12px;
+    color: var(--ff-graphite-20);
+    gap: 0;
+  }
+
+  .ft__bar-live {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ff-graphite-50);
+  }
+
+  .ft__pre {
+    margin: 0;
+    padding: 14px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ff-graphite-20);
+    background: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  .ft__pre .k { color: var(--ff-signal); }
+  .ft__pre .s { color: var(--ff-verify); }
+  .ft__pre .c { color: var(--ff-graphite-50); }
+  .ft__pre .bad { color: var(--ff-alarm); }
+
+  .ft__cols {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.4fr;
+    gap: 48px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #1f1f23;
+  }
+
+  .ft__cols .ff-eyebrow {
+    color: var(--ff-graphite-50);
+    margin-bottom: 10px;
+  }
+
+  .ft__cols a {
+    display: block;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--fg-inverse-2);
+    transition: color var(--dur-fast);
+  }
+
+  .ft__cols a:hover {
+    color: var(--ff-white);
+  }
+
+  .ft__sub-desc {
+    font-size: var(--fs-sm);
+    color: var(--fg-inverse-2);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .ft__form {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ft__form input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    background: var(--bg-inverse-1);
+    border: 1px solid #26262b;
+    border-radius: var(--r-2);
+    color: var(--ff-white);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    outline: none;
+    transition: border-color var(--dur-fast);
+  }
+
+  .ft__form input:focus {
+    outline: 2px solid var(--ff-signal);
+    outline-offset: 2px;
+  }
+
+  .ft__base {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ff-graphite-50);
+    text-transform: uppercase;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .ft__cols {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .ft {
+      padding: 40px 20px 24px;
+    }
+    .ft__cols {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .ft__base {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 </style>

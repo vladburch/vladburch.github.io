@@ -1,43 +1,188 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ArticleList from '../../components/ArticleList.astro';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-const items = posts.map(post => ({
-  href: `/blog/${post.id}/`,
-  title: post.data.title,
-  meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-}));
+const categories = ['All', ...Array.from(new Set(posts.map(p => p.data.category)))];
+
+function formatDate(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}·${m}·${day}`;
+}
 ---
 
 <BaseLayout title="Blog" description="Security research articles and deep dives.">
-  <section class="listing">
-    <h1>Blog</h1>
-    <p class="listing-desc">Research articles, deep dives, and technical analysis.</p>
-    <ArticleList items={items} />
+  <section class="list container">
+    <div class="list__head">
+      <div class="ff-eyebrow">Archive · {posts.length} posts</div>
+      <div class="list__filters" id="filters">
+        {categories.map(cat => (
+          <button class:list={['chip', { 'is-on': cat === 'All' }]} data-cat={cat}>
+            {cat}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="list__rows" id="post-rows">
+      {posts.map((post, i) => (
+        <a
+          class="row"
+          href={`/blog/${post.id}/`}
+          data-cat={post.data.category}
+        >
+          <div class="row__num">{String(posts.length - i).padStart(3, '0')}</div>
+          <div class="row__body">
+            <div class="row__meta">
+              <span>{post.data.category.toUpperCase()}</span>
+              <span>·</span>
+              <span>{formatDate(post.data.date)}</span>
+            </div>
+            <div class="row__title">{post.data.title}</div>
+          </div>
+          <div class="row__arrow">→</div>
+        </a>
+      ))}
+    </div>
   </section>
 </BaseLayout>
 
+<script>
+  const filters = document.getElementById('filters');
+  const rows = document.getElementById('post-rows');
+
+  filters?.addEventListener('click', e => {
+    const btn = (e.target as HTMLElement).closest('.chip') as HTMLElement;
+    if (!btn) return;
+
+    filters.querySelectorAll('.chip').forEach(b => b.classList.remove('is-on'));
+    btn.classList.add('is-on');
+
+    const cat = btn.dataset.cat ?? 'All';
+
+    rows?.querySelectorAll<HTMLElement>('.row').forEach(row => {
+      if (cat === 'All' || row.dataset.cat === cat) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+</script>
+
 <style>
-  .listing {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 48px 24px;
+  .list {
+    padding: 48px 28px 96px;
   }
 
-  .listing h1 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
+  .list__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
   }
 
-  .listing-desc {
-    color: var(--text-muted);
-    font-size: 14px;
-    margin-bottom: 24px;
+  .list__filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-pill);
+    background: var(--bg-1);
+    color: var(--fg-2);
+    cursor: pointer;
+    transition: all var(--dur-fast);
+  }
+
+  .chip:hover {
+    border-color: var(--fg-1);
+    color: var(--fg-1);
+  }
+
+  .chip.is-on {
+    background: var(--fg-1);
+    color: var(--bg-1);
+    border-color: var(--fg-1);
+  }
+
+  .list__rows {
+    border-top: 1px solid var(--border-hair);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-hair);
+    transition: background var(--dur-fast);
+    color: var(--fg-1);
+  }
+
+  .row:hover { background: var(--bg-2); }
+
+  .row__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+  }
+
+  .row__meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--fg-3);
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .row__title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .row__arrow {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--fg-3);
+    transition: transform var(--dur-fast);
+  }
+
+  .row:hover .row__arrow {
+    transform: translateX(4px);
+    color: var(--fg-1);
+  }
+
+  @media (max-width: 700px) {
+    .list {
+      padding: 32px 20px 64px;
+    }
+
+    .row {
+      grid-template-columns: 48px 1fr auto;
+      gap: 12px;
+    }
+
+    .row__title { font-size: 16px; }
   }
 </style>

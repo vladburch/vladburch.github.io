@@ -1,7 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import TagList from '../components/TagList.astro';
-import TableOfContents from '../components/TableOfContents.astro';
 import type { MarkdownHeading } from 'astro';
 import { getReadingTime } from '../utils/reading-time';
 
@@ -23,167 +22,351 @@ const readingTime = getReadingTime(body);
 
 const sectionLabel = section === 'blog' ? 'Blog' : 'Knowledge Base';
 const sectionHref = section === 'blog' ? '/blog/' : '/knowledge_base/';
+const sectionCode = section === 'blog' ? 'FF / WRITING' : 'FF / KB';
 
 const displayDate = date || lastUpdated;
-const dateLabel = displayDate
-  ? displayDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-  : '';
+
+function formatDateMeta(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}·${m}·${day}`;
+}
+
+const dateStr = displayDate ? formatDateMeta(displayDate) : '';
+
+const filteredHeadings = headings.filter(h => h.depth <= 3);
 ---
 
 <BaseLayout title={title} description={description}>
-  <article class="article" data-pagefind-body data-pagefind-filter={`section:${sectionLabel}`}>
-    <div class="article-header">
-      <div class="breadcrumb">
-        <a href={sectionHref} class="nav-link">{sectionLabel}</a>
-        {category && (
-          <>
-            <span class="sep">/</span>
-            <span>{category}</span>
-          </>
-        )}
-      </div>
-      <h1>{title}</h1>
-      <div class="article-meta">
-        {dateLabel && <span>{dateLabel}</span>}
-        <span>{readingTime} min read</span>
-      </div>
-      <TagList tags={tags} />
+  <article class="post" data-pagefind-body data-pagefind-filter={`section:${sectionLabel}`}>
+
+    <div class="post__rail post__rail--l">
+      <div class="post__rail-label">{sectionCode}</div>
     </div>
 
-    <div class="article-body">
-      <div class="article-content">
+    <div class="post__main">
+      <div class="post__head">
+        <div class="post__eye">
+          <a href={sectionHref} class="post__breadcrumb">{sectionLabel}</a>
+          {category && <><span>·</span><span>{category}</span></>}
+          {dateStr && <><span>·</span><span>{dateStr}</span></>}
+        </div>
+        <h1 class="post__h1">{title}</h1>
+        <p class="post__dek">{description}</p>
+        <div class="post__byline">
+          <span>{readingTime} MIN READ</span>
+          {tags.length > 0 && <><span>·</span><TagList tags={tags} /></>}
+        </div>
+      </div>
+
+      <div class="post__body">
         <slot />
       </div>
-      <TableOfContents headings={headings} />
     </div>
+
+    <aside class="post__rail post__rail--r">
+      {filteredHeadings.length > 0 && (
+        <div class="tocbox">
+          <div class="ff-eyebrow">On this page</div>
+          <ol class="toc">
+            {filteredHeadings.map(h => (
+              <li class:list={[{ 'toc--sub': h.depth === 3 }]}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {tags.length > 0 && (
+        <div class="tagbox">
+          <div class="ff-eyebrow">Tags</div>
+          <div class="tagbox__list">
+            {tags.map(tag => (
+              <a href={`/tags/${tag}/`} class="tagbox__tag">{tag}</a>
+            ))}
+          </div>
+        </div>
+      )}
+    </aside>
+
   </article>
 </BaseLayout>
 
 <style>
-  .article {
-    max-width: 960px;
+  .post {
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 56px 28px;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) 260px;
+    gap: 28px;
   }
 
-  .article-header {
-    padding: 32px 0 24px;
-    border-bottom: 1px solid var(--border-subtle);
-    margin-bottom: 24px;
+  /* Left rail — vertical label */
+  .post__rail--l {
+    padding-top: 40px;
   }
 
-  .breadcrumb {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-    letter-spacing: 0.03em;
+  .post__rail-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--fg-3);
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
   }
 
-  .sep {
-    margin: 0 6px;
-  }
-
-  .article-header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.02em;
-    margin-bottom: 12px;
-  }
-
-  .article-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-    letter-spacing: 0.03em;
-  }
-
-  .article-body {
-    display: flex;
-    gap: 32px;
-    padding-bottom: 48px;
-  }
-
-  .article-content {
-    flex: 1;
+  /* Main content */
+  .post__main {
     min-width: 0;
   }
 
-  .article-content :global(h2) {
-    font-size: 19px;
-    margin: 36px 0 14px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(14, 165, 233, 0.05);
+  .post__head {
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border-hair);
+    margin-bottom: 32px;
   }
 
-  .article-content :global(h3) {
-    font-size: 15px;
-    margin: 28px 0 10px;
+  .post__eye {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    margin-bottom: 24px;
+    flex-wrap: wrap;
   }
 
-  .article-content :global(p) {
-    margin-bottom: 16px;
-    font-size: 14px;
-    color: var(--text-muted);
+  .post__breadcrumb {
+    color: var(--fg-2);
+    transition: color var(--dur-fast);
   }
 
-  .article-content :global(ul),
-  .article-content :global(ol) {
-    margin-bottom: 16px;
+  .post__breadcrumb:hover { color: var(--fg-1); }
+
+  .post__h1 {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(32px, 5vw, 60px);
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    margin: 0 0 18px;
+    color: var(--fg-1);
+  }
+
+  .post__dek {
+    font-size: 20px;
+    line-height: 1.4;
+    color: var(--fg-2);
+    max-width: 720px;
+    margin: 0 0 20px;
+  }
+
+  .post__byline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    flex-wrap: wrap;
+  }
+
+  /* Body content */
+  .post__body {
+    max-width: 720px;
+    font-size: var(--fs-md);
+    line-height: var(--lh-relax);
+    color: var(--fg-1);
+  }
+
+  .post__body :global(p) {
+    margin: 0 0 20px;
+  }
+
+  .post__body :global(h2) {
+    margin: 40px 0 16px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    color: var(--fg-1);
+  }
+
+  .post__body :global(h3) {
+    margin: 28px 0 12px;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    color: var(--fg-1);
+  }
+
+  .post__body :global(ul),
+  .post__body :global(ol) {
+    margin: 0 0 20px;
     padding-left: 24px;
-    color: var(--text-muted);
-    font-size: 14px;
   }
 
-  .article-content :global(li) {
-    margin-bottom: 4px;
+  .post__body :global(li) {
+    margin-bottom: 6px;
   }
 
-  .article-content :global(pre) {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(14, 165, 233, 0.08);
-    border-radius: 6px;
-    padding: 18px;
-    overflow-x: auto;
-    font-size: 12.5px;
-    line-height: 1.65;
-    margin-bottom: 18px;
+  .post__body :global(pre) {
+    background: var(--bg-inverse-1);
+    color: var(--ff-graphite-20);
+    border-radius: var(--r-3);
+    padding: 18px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    overflow: auto;
+    border: 1px solid var(--ff-graphite-85);
+    margin: 0 0 24px;
   }
 
-  .article-content :global(code:not(pre code)) {
-    background: rgba(14, 165, 233, 0.07);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 0.88em;
-    color: var(--accent-tertiary);
+  .post__body :global(code:not(pre code)) {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    font-weight: 500;
+    padding: 1px 6px;
+    background: var(--bg-3);
+    border: 1px solid var(--border-hair);
+    border-radius: var(--r-2);
+    color: var(--fg-1);
   }
 
-  .article-content :global(img) {
+  .post__body :global(blockquote) {
+    border-left: 2px solid var(--fg-1);
+    padding: 16px 0 16px 20px;
+    margin: 24px 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 20px;
+    line-height: 1.45;
+    color: var(--fg-1);
+  }
+
+  .post__body :global(a) {
+    color: var(--fg-1);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--border-1);
+    transition: text-decoration-color var(--dur-fast);
+  }
+
+  .post__body :global(a:hover) {
+    text-decoration-color: var(--fg-1);
+  }
+
+  .post__body :global(img) {
     max-width: 100%;
-    border-radius: 6px;
+    border-radius: var(--r-2);
+    border: 1px solid var(--border-hair);
   }
 
-  @media (max-width: 768px) {
-    .article {
-      padding: 0 16px;
+  /* Right rail */
+  .post__rail--r {
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .tocbox,
+  .tagbox {
+    padding: 16px;
+    border: 1px solid var(--border-hair);
+    border-radius: var(--r-3);
+    background: var(--bg-2);
+  }
+
+  .tocbox .ff-eyebrow,
+  .tagbox .ff-eyebrow {
+    margin-bottom: 10px;
+  }
+
+  .toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: toc;
+  }
+
+  .toc li {
+    counter-increment: toc;
+    font-size: var(--fs-sm);
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border-hair);
+    color: var(--fg-2);
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  .toc li:last-child { border: 0; }
+
+  .toc li a {
+    color: inherit;
+    transition: color var(--dur-fast);
+  }
+
+  .toc li a:hover { color: var(--fg-1); }
+
+  .toc--sub {
+    padding-left: 12px;
+    font-size: 12px;
+  }
+
+  .tagbox__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tagbox__tag {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    padding: 3px 8px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-1);
+    color: var(--fg-2);
+    transition: all var(--dur-fast);
+  }
+
+  .tagbox__tag:hover {
+    border-color: var(--fg-1);
+    color: var(--fg-1);
+  }
+
+  @media (max-width: 960px) {
+    .post {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 32px 20px;
     }
 
-    .article-header {
-      padding: 24px 0 20px;
-    }
-
-    .article-header h1 {
-      font-size: 22px;
-    }
-
-    .article-body {
-      flex-direction: column;
-      gap: 0;
+    .post__rail--l,
+    .post__rail--r {
+      display: none;
     }
   }
 </style>

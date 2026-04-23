@@ -1,138 +1,258 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SearchInput from '../components/SearchInput.astro';
-import SectionCard from '../components/SectionCard.astro';
-import ArticleList from '../components/ArticleList.astro';
 import { getCollection } from 'astro:content';
 
 const blogPosts = (await getCollection('blog'))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 4);
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const kbArticles = (await getCollection('kb'))
-  .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf())
-  .slice(0, 4);
+  .sort((a, b) => b.data.lastUpdated.valueOf() - a.data.lastUpdated.valueOf());
 
-const blogItems = blogPosts.map(post => ({
-  href: `/blog/${post.id}/`,
-  title: post.data.title,
-  meta: post.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-}));
-
-const kbItems = kbArticles.map(article => ({
-  href: `/knowledge_base/${article.id}/`,
-  title: article.data.title,
-  meta: article.data.tags[0],
-}));
+function formatDate(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}·${m}·${day}`;
+}
 ---
 
 <BaseLayout title="Home">
-  <section class="hero">
-    <h1>Firewall Flamingos</h1>
-    <p class="subtitle">Security Research <span class="amp">&amp;</span> Technical Knowledge</p>
-    <SearchInput />
+  <section class="hero ff-dots">
+    <div class="hero__eyebrow">
+      <span class="ff-live-dot"></span>
+      <span>THREAT INTELLIGENCE · SECURITY RESEARCH · LIVE</span>
+    </div>
+    <h1 class="hero__title">
+      Reading the adversary's mind,<br/>
+      <span class="hero__ser">one binary at a time.</span>
+    </h1>
+    <p class="hero__dek">
+      Long-form threat research, reverse engineering walkthroughs, and AI&thinsp;&times;&thinsp;security essays.
+      Written by a solo operator who reads the footnotes.
+    </p>
+    <div class="hero__cta">
+      <a href="/blog/" class="btn">Read the archive</a>
+      <a href="/knowledge_base/" class="btn btn--ghost">Knowledge Base &nbsp;›</a>
+    </div>
+    <div class="hero__reticle" aria-hidden="true">
+      <svg viewBox="0 0 160 160" width="160" height="160">
+        <circle cx="80" cy="80" r="58" fill="none" stroke="#000" stroke-width="1"/>
+        <circle cx="80" cy="80" r="38" fill="none" stroke="#000" stroke-width="1"/>
+        <path d="M80 10 V70 M80 90 V150 M10 80 H70 M90 80 H150" stroke="#000" stroke-width="1"/>
+        <circle cx="80" cy="80" r="3" fill="#d9ff3b"/>
+        <text x="6" y="14" font-family="JetBrains Mono" font-size="8" fill="#6b6b74" letter-spacing="1.2">LAT 40.71N  LON 74.00W</text>
+        <text x="6" y="156" font-family="JetBrains Mono" font-size="8" fill="#6b6b74" letter-spacing="1.2">SIG LIVE · THREAT FEED</text>
+      </svg>
+    </div>
   </section>
 
-  <section class="sections">
-    <SectionCard>
-      <div class="section-header">
-        <a href="/blog/" class="section-link">Blog <span class="section-sub">Latest</span></a>
-        <a href="/blog/" class="view-all">View all &rarr;</a>
-      </div>
-      <ArticleList items={blogItems} />
-    </SectionCard>
+  <section class="list">
+    <div class="list__head">
+      <div class="ff-eyebrow">Latest writing · {blogPosts.length} posts</div>
+      <a href="/blog/" class="list__all">All posts &nbsp;›</a>
+    </div>
+    <div class="list__rows">
+      {blogPosts.slice(0, 5).map((post, i) => (
+        <a class="row" href={`/blog/${post.id}/`}>
+          <div class="row__num">{String(blogPosts.length - i).padStart(3, '0')}</div>
+          <div class="row__body">
+            <div class="row__meta">
+              <span>{post.data.category.toUpperCase()}</span>
+              <span>·</span>
+              <span>{formatDate(post.data.date)}</span>
+            </div>
+            <div class="row__title">{post.data.title}</div>
+          </div>
+          <div class="row__arrow">→</div>
+        </a>
+      ))}
+    </div>
+  </section>
 
-    <SectionCard>
-      <div class="section-header">
-        <a href="/knowledge_base/" class="section-link">Knowledge Base <span class="section-sub">Recent</span></a>
-        <a href="/knowledge_base/" class="view-all">View all &rarr;</a>
-      </div>
-      <ArticleList items={kbItems} />
-    </SectionCard>
+  <section class="list" style="border-top:1px solid var(--border-hair)">
+    <div class="list__head">
+      <div class="ff-eyebrow">Knowledge base · {kbArticles.length} articles</div>
+      <a href="/knowledge_base/" class="list__all">All articles &nbsp;›</a>
+    </div>
+    <div class="list__rows">
+      {kbArticles.slice(0, 4).map(article => (
+        <a class="row" href={`/knowledge_base/${article.id}/`}>
+          <div class="row__num">KB</div>
+          <div class="row__body">
+            <div class="row__meta">
+              <span>{article.data.tags[0]?.toUpperCase()}</span>
+              <span>·</span>
+              <span>{formatDate(article.data.lastUpdated)}</span>
+            </div>
+            <div class="row__title">{article.data.title}</div>
+          </div>
+          <div class="row__arrow">→</div>
+        </a>
+      ))}
+    </div>
   </section>
 </BaseLayout>
 
 <style>
   .hero {
-    text-align: center;
-    padding: 72px 24px 48px;
-    animation: fade-up 0.6s ease-out both;
-  }
-
-  .hero h1 {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    margin-bottom: 10px;
-    line-height: 1.1;
-  }
-
-  .subtitle {
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--text-dim);
-    font-size: 12px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 32px;
-  }
-
-  .amp {
-    color: var(--accent);
-  }
-
-  .sections {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 8px 32px 56px;
-    max-width: 920px;
+    position: relative;
+    padding: 96px 28px 72px;
+    max-width: 1280px;
     margin: 0 auto;
-    animation: fade-up 0.6s ease-out 0.15s both;
+    overflow: hidden;
   }
 
-  .sections > :global(.glow-card) {
-    flex: 1;
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-2);
+    margin-bottom: 28px;
   }
 
-  .section-header {
+  .hero__title {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(44px, 7vw, 84px);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    margin: 0 0 24px;
+    max-width: 960px;
+    color: var(--fg-1);
+  }
+
+  .hero__ser {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__dek {
+    font-size: 19px;
+    line-height: 1.45;
+    max-width: 680px;
+    color: var(--fg-1);
+    margin: 0 0 36px;
+  }
+
+  .hero__cta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .hero__reticle {
+    position: absolute;
+    top: 84px;
+    right: 28px;
+    opacity: 0.85;
+    pointer-events: none;
+  }
+
+  .list {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 48px 28px 72px;
+  }
+
+  .list__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-subtle);
-    font-size: 14px;
+    gap: 16px;
+    margin-bottom: 20px;
   }
 
-  .section-sub {
-    color: var(--text-dim);
+  .list__all {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--fg-3);
+    transition: color var(--dur-fast);
   }
 
-  .view-all {
-    font-family: 'IBM Plex Mono', monospace;
+  .list__all:hover { color: var(--fg-1); }
+
+  .list__rows { border-top: 1px solid var(--border-hair); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-hair);
+    transition: background var(--dur-fast);
+    color: var(--fg-1);
+  }
+
+  .row:hover { background: var(--bg-2); }
+
+  .row__num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--fg-3);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  .row__meta {
+    font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transition: color 0.2s ease;
+    letter-spacing: 0.2em;
+    color: var(--fg-3);
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
   }
 
-  .view-all:hover {
-    color: var(--accent);
+  .row__title {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
   }
 
-  @media (max-width: 640px) {
+  .row__arrow {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--fg-3);
+    transition: transform var(--dur-fast);
+    flex-shrink: 0;
+  }
+
+  .row:hover .row__arrow {
+    transform: translateX(4px);
+    color: var(--fg-1);
+  }
+
+  @media (max-width: 700px) {
     .hero {
-      padding: 48px 20px 32px;
+      padding: 64px 20px 48px;
     }
 
-    .hero h1 {
-      font-size: 28px;
+    .hero__reticle {
+      display: none;
     }
 
-    .sections {
-      flex-direction: column;
-      padding: 8px 20px 40px;
+    .list {
+      padding: 32px 20px 48px;
+    }
+
+    .row {
+      grid-template-columns: 48px 1fr auto;
+      gap: 12px;
+    }
+
+    .row__title {
+      font-size: 16px;
     }
   }
 </style>

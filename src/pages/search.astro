@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 const blogPosts = await getCollection('blog');
 const kbArticles = await getCollection('kb');
@@ -26,46 +26,39 @@ const fallbackIndex = [
     tags: article.data.tags,
   })),
 ];
-
 ---
 
 <BaseLayout title="Search" description="Search articles, tags, and keywords.">
-  <section class="search-page">
-    <div class="search-bar">
-      <div class="gradient-border">
-        <div class="gradient-border-inner search-inner">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Search articles, tags, keywords..."
-            autocomplete="off"
-          />
-        </div>
-      </div>
+  <section class="search-page container">
+    <div class="ff-eyebrow" style="margin-bottom:16px">Search</div>
+
+    <div class="search-box">
+      <span class="search-prompt">›</span>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="search posts, CVEs, hashes…"
+        autocomplete="off"
+      />
     </div>
 
     <div class="filters">
-      <div class="section-filters">
-        <span class="filter-label">Section:</span>
-        <button class="filter-btn active" data-section="all">All</button>
-        <button class="filter-btn" data-section="Blog">Blog</button>
-        <button class="filter-btn" data-section="KB">Knowledge Base</button>
+      <div class="filter-row">
+        <span class="filter-label">Section</span>
+        <button class="chip is-on" data-section="all">All</button>
+        <button class="chip" data-section="Blog">Blog</button>
+        <button class="chip" data-section="KB">Knowledge Base</button>
       </div>
-
-      <div class="tag-filters">
-        <span class="filter-label">Tags:</span>
+      <div class="filter-row filter-row--tags">
+        <span class="filter-label">Tags</span>
         {sortedTags.map(tag => (
-          <button class="tag-filter" data-tag={tag}>{tag}</button>
+          <button class="chip chip--sm" data-tag={tag}>{tag}</button>
         ))}
       </div>
     </div>
 
     <div id="search-results" class="results">
-      <p class="results-hint">Start typing to search...</p>
+      <p class="results-hint">Start typing to search…</p>
     </div>
   </section>
 
@@ -77,19 +70,16 @@ const fallbackIndex = [
     (async function() {
       var input = document.getElementById('search-input');
       var resultsContainer = document.getElementById('search-results');
-      var sectionBtns = document.querySelectorAll('.filter-btn');
-      var tagBtns = document.querySelectorAll('.tag-filter');
+      var sectionBtns = document.querySelectorAll('[data-section]');
+      var tagBtns = document.querySelectorAll('[data-tag]');
 
-      var hasWasm = typeof WebAssembly === 'object';
       var pagefind = null;
-
-      if (hasWasm) {
+      if (typeof WebAssembly === 'object') {
         try {
           pagefind = await import(new URL('/pagefind/pagefind.js', window.location.origin).href);
           await pagefind.init();
         } catch (e) {
           pagefind = null;
-          console.warn('Pagefind unavailable, using fallback search:', e);
         }
       }
 
@@ -98,8 +88,8 @@ const fallbackIndex = [
 
       sectionBtns.forEach(function(btn) {
         btn.addEventListener('click', function() {
-          sectionBtns.forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
+          sectionBtns.forEach(function(b) { b.classList.remove('is-on'); });
+          btn.classList.add('is-on');
           currentSection = btn.dataset.section;
           performSearch();
         });
@@ -110,10 +100,10 @@ const fallbackIndex = [
           var tag = btn.dataset.tag;
           if (activeTags.has(tag)) {
             activeTags.delete(tag);
-            btn.classList.remove('active');
+            btn.classList.remove('is-on');
           } else {
             activeTags.add(tag);
-            btn.classList.add('active');
+            btn.classList.add('is-on');
           }
           performSearch();
         });
@@ -123,16 +113,13 @@ const fallbackIndex = [
         var index = window.__searchIndex || [];
         var lower = query.toLowerCase();
         var words = lower.split(/\s+/).filter(function(w) { return w.length > 0; });
-
         var results = [];
         for (var i = 0; i < index.length; i++) {
           var item = index[i];
-
           if (currentSection !== 'all') {
             var wantSection = currentSection === 'KB' ? 'Knowledge Base' : currentSection;
             if (item.section !== wantSection) continue;
           }
-
           if (activeTags.size > 0) {
             var hasTag = false;
             for (var t = 0; t < item.tags.length; t++) {
@@ -140,7 +127,6 @@ const fallbackIndex = [
             }
             if (!hasTag) continue;
           }
-
           var searchable = (item.title + ' ' + item.description + ' ' + item.tags.join(' ')).toLowerCase();
           var matched = true;
           for (var w = 0; w < words.length; w++) {
@@ -160,31 +146,21 @@ const fallbackIndex = [
 
       async function performSearch() {
         var query = input.value.trim();
-        if (!query) {
-          resultsContainer.innerHTML = '<p class="results-hint">Start typing to search...</p>';
+        if (!query && activeTags.size === 0) {
+          resultsContainer.innerHTML = '<p class="results-hint">Start typing to search…</p>';
           return;
         }
 
         var filtered;
-
-        if (pagefind) {
+        if (pagefind && query) {
           try {
             var searchFilters = {};
-            if (currentSection !== 'all') {
-              searchFilters.section = [currentSection === 'KB' ? 'Knowledge Base' : currentSection];
-            }
-            if (activeTags.size > 0) {
-              searchFilters.tag = Array.from(activeTags);
-            }
-
+            if (currentSection !== 'all') searchFilters.section = [currentSection === 'KB' ? 'Knowledge Base' : currentSection];
+            if (activeTags.size > 0) searchFilters.tag = Array.from(activeTags);
             var search = await pagefind.search(query, { filters: searchFilters });
             var data = await Promise.all(search.results.slice(0, 20).map(function(r) { return r.data(); }));
-
-            filtered = data.map(function(r) {
-              return { url: r.url, title: r.meta.title || r.url, excerpt: r.excerpt };
-            });
+            filtered = data.map(function(r) { return { url: r.url, title: r.meta.title || r.url, excerpt: r.excerpt }; });
           } catch (e) {
-            console.warn('Pagefind search failed, falling back:', e);
             filtered = fallbackSearch(query);
           }
         } else {
@@ -192,17 +168,18 @@ const fallbackIndex = [
         }
 
         if (filtered.length === 0) {
-          resultsContainer.innerHTML = '<p class="results-hint">No results for "' + query + '"</p>';
+          resultsContainer.innerHTML = '<p class="results-hint">No results' + (query ? ' for “' + query + '”' : '') + '</p>';
           return;
         }
 
         resultsContainer.innerHTML =
-          '<p class="results-count">' + filtered.length + ' result' + (filtered.length !== 1 ? 's' : '') + ' for "' + query + '"</p>' +
+          '<p class="results-count">' + filtered.length + ' result' + (filtered.length !== 1 ? 's' : '') + (query ? ' for “' + query + '”' : '') + '</p>' +
           filtered.map(function(r) {
-            return '<div class="result-item">' +
-              '<a href="' + r.url + '" class="result-title">' + r.title + '</a>' +
+            return '<a href="' + r.url + '" class="result-item">' +
+              '<div class="result-title">' + r.title + '</div>' +
               '<p class="result-excerpt">' + r.excerpt + '</p>' +
-            '</div>';
+              '<span class="result-arrow">→</span>' +
+            '</a>';
           }).join('');
       }
 
@@ -220,156 +197,163 @@ const fallbackIndex = [
 
 <style>
   .search-page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 32px 24px 48px;
+    padding: 56px 28px 96px;
+    max-width: 720px;
   }
 
-  .search-bar {
-    margin-bottom: 20px;
-  }
-
-  .search-inner {
+  .search-box {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-2);
+    margin-bottom: 24px;
+    transition: border-color var(--dur-fast);
+  }
+
+  .search-box:focus-within {
+    border-color: var(--fg-1);
+    outline: 2px solid var(--ff-signal);
+    outline-offset: 2px;
+  }
+
+  .search-prompt {
+    color: var(--fg-3);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    flex-shrink: 0;
   }
 
   #search-input {
+    flex: 1;
     background: none;
     border: none;
     outline: none;
-    color: var(--text-secondary);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    width: 100%;
-    letter-spacing: 0.02em;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--fg-1);
   }
 
   #search-input::placeholder {
-    color: var(--text-dim);
+    color: var(--fg-3);
   }
 
   .filters {
-    margin-bottom: 24px;
-  }
-
-  .section-filters {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
   }
 
-  .filter-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-right: 4px;
-  }
-
-  .filter-btn {
-    font-size: 11px;
-    padding: 4px 12px;
-    border-radius: 4px;
-    border: 1px solid rgba(14, 165, 233, 0.2);
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'IBM Plex Mono', monospace;
-  }
-
-  .filter-btn:hover {
-    border-color: var(--accent);
-    color: var(--text-secondary);
-  }
-
-  .filter-btn.active {
-    background: rgba(14, 165, 233, 0.12);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .tag-filters {
+  .filter-row {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-wrap: wrap;
   }
 
-  .tag-filter {
+  .filter-label {
+    font-family: var(--font-mono);
     font-size: 10px;
-    color: var(--text-dim);
-    border: 1px solid rgba(14, 165, 233, 0.1);
-    border-radius: 4px;
-    padding: 2px 8px;
-    background: transparent;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-pill);
+    background: var(--bg-1);
+    color: var(--fg-2);
     cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'IBM Plex Mono', monospace;
+    transition: all var(--dur-fast);
   }
 
-  .tag-filter:hover {
-    border-color: rgba(14, 165, 233, 0.25);
-    color: var(--text-muted);
+  .chip:hover { border-color: var(--fg-1); color: var(--fg-1); }
+
+  .chip.is-on {
+    background: var(--fg-1);
+    color: var(--bg-1);
+    border-color: var(--fg-1);
   }
 
-  .tag-filter.active {
-    background: rgba(14, 165, 233, 0.08);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+  .chip--sm { padding: 4px 8px; font-size: 10px; }
 
   .results-hint {
-    color: var(--text-dim);
-    font-size: 13px;
+    color: var(--fg-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.04em;
   }
 
-  .results-count {
-    color: var(--text-dim);
+  :global(.results-count) {
+    font-family: var(--font-mono);
     font-size: 11px;
-    margin-bottom: 12px;
+    letter-spacing: 0.15em;
+    color: var(--fg-3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
   }
 
   :global(.result-item) {
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(14, 165, 233, 0.06);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border-hair);
+    color: var(--fg-1);
+    transition: background var(--dur-fast);
   }
+
+  :global(.result-item:hover) { background: var(--bg-2); }
 
   :global(.result-title) {
-    font-size: 14px;
+    font-family: var(--font-sans);
     font-weight: 600;
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-
-  :global(.result-title:hover) {
-    color: var(--accent);
+    font-size: 19px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
   }
 
   :global(.result-excerpt) {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 6px;
+    font-size: var(--fs-sm);
+    color: var(--fg-2);
     line-height: 1.5;
   }
 
-  :global(.result-excerpt mark) {
-    background: rgba(14, 165, 233, 0.15);
-    color: var(--text-secondary);
-    padding: 0 2px;
-    border-radius: 2px;
+  :global(.result-arrow) {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    color: var(--fg-3);
+    padding-top: 4px;
+    transition: transform var(--dur-fast);
   }
 
-  @media (max-width: 640px) {
+  :global(.result-item:hover .result-arrow) {
+    transform: translateX(4px);
+    color: var(--fg-1);
+  }
+
+  :global(.result-excerpt mark) {
+    background: rgba(217,255,59,0.25);
+    color: var(--fg-1);
+    padding: 0 2px;
+    border-radius: var(--r-1);
+  }
+
+  @media (max-width: 700px) {
     .search-page {
-      padding: 24px 16px 40px;
+      padding: 32px 20px 64px;
     }
   }
 </style>
