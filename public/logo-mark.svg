@@ -1,44 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
   
-  <rect width="64" height="64" fill="#000"></rect>
+
+  
+  <rect width="256" height="256" rx="6" fill="#0a0a0b"></rect>
 
   
   <g stroke="#1f1f23" stroke-width="1">
-    <line x1="0" y1="12" x2="64" y2="12"></line>
-    <line x1="0" y1="24" x2="64" y2="24"></line>
-    <line x1="0" y1="36" x2="64" y2="36"></line>
-    <line x1="0" y1="48" x2="64" y2="48"></line>
     
-    <line x1="12" y1="0" x2="12" y2="12"></line>
-    <line x1="28" y1="0" x2="28" y2="12"></line>
-    <line x1="44" y1="0" x2="44" y2="12"></line>
-    <line x1="20" y1="12" x2="20" y2="24"></line>
-    <line x1="36" y1="12" x2="36" y2="24"></line>
-    <line x1="52" y1="12" x2="52" y2="24"></line>
-    <line x1="12" y1="24" x2="12" y2="36"></line>
-    <line x1="28" y1="24" x2="28" y2="36"></line>
-    <line x1="44" y1="24" x2="44" y2="36"></line>
-    <line x1="20" y1="36" x2="20" y2="48"></line>
-    <line x1="36" y1="36" x2="36" y2="48"></line>
-    <line x1="52" y1="36" x2="52" y2="48"></line>
-    <line x1="12" y1="48" x2="12" y2="64"></line>
-    <line x1="28" y1="48" x2="28" y2="64"></line>
-    <line x1="44" y1="48" x2="44" y2="64"></line>
+    <path d="M0 32H256 M0 48H256 M0 64H256 M0 80H256 M0 96H256 M0 112H256 M0 128H256 M0 144H256 M0 160H256 M0 176H256 M0 192H256 M0 208H256 M0 224H256"></path>
+    
+    <g>
+      <path d="M32 16V32 M64 16V32 M96 16V32 M128 16V32 M160 16V32 M192 16V32 M224 16V32"></path>
+      <path d="M16 32V48 M48 32V48 M80 32V48 M112 32V48 M144 32V48 M176 32V48 M208 32V48 M240 32V48"></path>
+      <path d="M32 48V64 M64 48V64 M96 48V64 M128 48V64 M160 48V64 M192 48V64 M224 48V64"></path>
+      <path d="M16 64V80 M48 64V80 M80 64V80 M112 64V80 M144 64V80 M176 64V80 M208 64V80 M240 64V80"></path>
+      <path d="M32 80V96 M64 80V96 M96 80V96 M128 80V96 M160 80V96 M192 80V96 M224 80V96"></path>
+      <path d="M16 96V112 M48 96V112 M80 96V112 M112 96V112 M144 96V112 M176 96V112 M208 96V112 M240 96V112"></path>
+      <path d="M32 112V128 M64 112V128 M96 112V128 M128 112V128 M160 112V128 M192 112V128 M224 112V128"></path>
+      <path d="M16 128V144 M48 128V144 M80 128V144 M112 128V144 M144 128V144 M176 128V144 M208 128V144 M240 128V144"></path>
+      <path d="M32 144V160 M64 144V160 M96 144V160 M128 144V160 M160 144V160 M192 144V160 M224 144V160"></path>
+      <path d="M16 160V176 M48 160V176 M80 160V176 M112 160V176 M144 160V176 M176 160V176 M208 160V176 M240 160V176"></path>
+      <path d="M32 176V192 M64 176V192 M96 176V192 M128 176V192 M160 176V192 M192 176V192 M224 176V192"></path>
+      <path d="M16 192V208 M48 192V208 M80 192V208 M112 192V208 M144 192V208 M176 192V208 M208 192V208 M240 192V208"></path>
+      <path d="M32 208V224 M64 208V224 M96 208V224 M128 208V224 M160 208V224 M192 208V224 M224 208V224"></path>
+      <path d="M16 224V240 M48 224V240 M80 224V240 M112 224V240 M144 224V240 M176 224V240 M208 224V240 M240 224V240"></path>
+    </g>
   </g>
+
+  
+  <g stroke="#34343a" stroke-width="1">
+    <path d="M12 12H22 M12 12V22"></path>
+    <path d="M244 12H234 M244 12V22"></path>
+    <path d="M12 244H22 M12 244V234"></path>
+    <path d="M244 244H234 M244 244V234"></path>
+  </g>
+
+  
+  <path d="M64 96 Q 96 56, 144 64 Q 200 72, 200 132 L 200 196 Q 200 208, 188 208 L 76 208 Q 64 208, 64 196 Z" fill="#0a0a0b"></path>
 
   
   <g fill="#ffffff">
     
-    <path d="M20 44 C 20 34, 28 30, 36 32 L 40 30 L 42 34 L 40 40 C 44 40, 46 42, 46 44 L 46 48 L 22 48 L 20 46 Z"></path>
+    <path d="M84 196&#xA;             L 84 168&#xA;             Q 84 138, 116 134&#xA;             L 152 130&#xA;             L 168 138&#xA;             L 172 154&#xA;             L 168 172&#xA;             Q 184 176, 188 188&#xA;             L 188 196&#xA;             Z"></path>
+
     
-    <path d="M36 32 C 32 28, 34 22, 38 20 C 42 18, 44 14, 42 10 C 40 6, 44 4, 48 6 C 52 8, 52 14, 48 18 C 44 22, 42 26, 42 30 Z"></path>
+    <path d="M84 168 L 70 156 L 78 172 Z"></path>
+    <path d="M86 178 L 68 174 L 84 184 Z"></path>
+
     
-    <path d="M46 8 L 54 10 L 50 12 L 48 10 Z"></path>
+    <path d="M120 152 L 168 144 L 162 168 L 124 174 Z" fill="#0a0a0b"></path>
+
     
-    <path d="M30 48 L 28 60 L 30 60 L 32 48 Z"></path>
-    <path d="M38 48 L 40 58 L 42 58 L 40 48 Z"></path>
+    <path d="M152 130&#xA;             C 138 110, 156 90, 168 84&#xA;             C 180 78, 184 64, 174 50&#xA;             C 168 42, 174 28, 188 28&#xA;             L 196 28&#xA;             L 196 40&#xA;             C 188 40, 186 48, 192 56&#xA;             C 204 72, 200 96, 184 104&#xA;             C 172 110, 166 120, 168 132&#xA;             Z"></path>
+
+    
+    <path d="M186 24 Q 200 22, 206 30 L 208 38 L 196 40 L 188 36 Z"></path>
+
+    
+    <path d="M206 30 L 230 36 L 220 42 L 210 38 Z"></path>
+
+    
+    <path d="M120 196 L 116 240 L 122 240 L 126 196 Z"></path>
+    <path d="M150 196 L 154 240 L 160 240 L 156 196 Z"></path>
+
+    
+    <path d="M114 240 H 130" stroke="#ffffff" stroke-width="2"></path>
+    <path d="M148 240 H 164" stroke="#ffffff" stroke-width="2"></path>
   </g>
 
   
-  <circle cx="54" cy="14" r="1.6" fill="#d9ff3b"></circle>
+  <circle cx="200" cy="34" r="2.4" fill="#d9ff3b"></circle>
+  <circle cx="200" cy="34" r="6" fill="none" stroke="#d9ff3b" stroke-width="0.6" opacity="0.6"></circle>
+
+  
+  <circle cx="229" cy="36" r="1.2" fill="#ff4d3d"></circle>
+
+  
+  <g font-family="JetBrains Mono, ui-monospace, monospace" fill="#6b6b74">
+    <text x="14" y="252" font-size="7" letter-spacing="2">FF · MARK · v2 · 2026·04·24</text>
+    <text x="178" y="252" font-size="7" letter-spacing="2">SIG · LIVE</text>
+  </g>
 </svg>

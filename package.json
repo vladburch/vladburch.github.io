@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.18",
     "@tsparticles/slim": "^3.9.1",
     "astro": "^6.1.6",
     "tsparticles": "^3.9.1"

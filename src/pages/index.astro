@@ -17,7 +17,8 @@ function formatDate(d: Date) {
 ---
 
 <BaseLayout title="Home">
-  <section class="hero ff-dots">
+  <div class="hero-band ff-dots">
+  <section class="hero">
     <div class="hero__eyebrow">
       <span class="ff-live-dot"></span>
       <span>THREAT INTELLIGENCE · SECURITY RESEARCH · LIVE</span>
@@ -45,6 +46,7 @@ function formatDate(d: Date) {
       </svg>
     </div>
   </section>
+  </div>
 
   <section class="list">
     <div class="list__head">
@@ -94,6 +96,10 @@ function formatDate(d: Date) {
 </BaseLayout>
 
 <style>
+  .hero-band {
+    width: 100%;
+  }
+
   .hero {
     position: relative;
     padding: 96px 28px 72px;
